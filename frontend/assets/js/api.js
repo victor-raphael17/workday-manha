@@ -143,9 +143,7 @@ export const api = {
   dashboard: () => request("/api/dashboard"),
 
   medications: (query) => request("/api/medications", { query }),
-  medication: (id) => request(`/api/medications/${id}`),
-  createMedication: (body) =>
-    request("/api/medications", { method: "POST", body }),
+  createMedication: (body) => request("/api/medications", { method: "POST", body }),
   adjustStock: (id, delta, reason) =>
     request(`/api/medications/${id}/stock`, {
       method: "POST",
