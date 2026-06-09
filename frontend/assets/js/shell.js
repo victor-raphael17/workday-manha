@@ -71,12 +71,6 @@ export function renderShell(pageId) {
         <i data-lucide="store"></i>
         <span>${branch.name}</span>
       </div>
-      <button class="topbar-icon" type="button" aria-label="Notifications">
-        <i data-lucide="bell"></i>
-      </button>
-      <button class="topbar-icon" type="button" aria-label="Help">
-        <i data-lucide="help-circle"></i>
-      </button>
       <button class="topbar-icon" id="logoutButton" type="button" aria-label="Sign out">
         <i data-lucide="log-out"></i>
       </button>
