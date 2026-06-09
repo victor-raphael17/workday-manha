@@ -167,7 +167,7 @@ export const api = {
       body: { state },
     }),
 
-  purchaseOrders: (query) => request("/api/purchase-orders", { query }),
+ purchaseOrders: (query) => request("/api/purchase-orders", { query }),
   purchaseOrder: (id) => request(`/api/purchase-orders/${id}`),
   createPurchaseOrder: (body) =>
     request("/api/purchase-orders", { method: "POST", body }),
@@ -177,7 +177,6 @@ export const api = {
       body: { state },
     }),
 
-  sales: (query) => request("/api/sales", { query }),
   createSale: (body) => request("/api/sales", { method: "POST", body }),
   voidSale: (id) => request(`/api/sales/${id}/void`, { method: "POST" }),
 };
