@@ -74,11 +74,14 @@ final class Router
     {
         if ($name === 'auth') {
             $this->authGroupDepth++;
+        try {
             $callback($this);
+        } finally {
             $this->authGroupDepth--;
-        } else {
-            $callback($this);
+        } 
+          return;
         }
+        $callback($this);
     }
 
     public function dispatch(Request $request): Response
