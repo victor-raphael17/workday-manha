@@ -55,7 +55,8 @@ export function openForm({ title, fields, submitLabel = "Save" }) {
           .map((opt) => {
             const value = typeof opt === "string" ? opt : opt.value;
             const label = typeof opt === "string" ? opt : opt.label;
-            const selected = String(field.value ?? "") === String(value) ? "selected" : "";
+            const selected =
+              String(field.value ?? "") === String(value) ? "selected" : "";
             return `<option value="${value}" ${selected}>${label}</option>`;
           })
           .join("");
@@ -82,6 +83,7 @@ export function openForm({ title, fields, submitLabel = "Save" }) {
         </label>`;
     };
 
+    const previouslyFocused = document.activeElement;
     overlay.innerHTML = `
       <div class="modal-card" role="dialog" aria-modal="true" aria-label="${title}">
         <div class="modal-head">
@@ -100,16 +102,50 @@ export function openForm({ title, fields, submitLabel = "Save" }) {
     const close = (result) => {
       overlay.remove();
       document.removeEventListener("keydown", onKey);
+      previouslyFocused?.focus();
       resolve(result);
     };
+    const FOCUSABLE =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    const getFocusable = () =>
+      Array.from(overlay.querySelectorAll(FOCUSABLE)).filter(
+        (el) => getComputedStyle(el).display !== "none",
+      );
+
     const onKey = (e) => {
       if (e.key === "Escape") {
         close(null);
+        return;
+      }
+      if (e.key === "Tab") {
+        const focusable = getFocusable();
+        if (!focusable.length) {
+          e.preventDefault();
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
 
-    overlay.querySelector(".modal-close").addEventListener("click", () => close(null));
-    overlay.querySelector("[data-cancel]").addEventListener("click", () => close(null));
+    overlay
+      .querySelector(".modal-close")
+      .addEventListener("click", () => close(null));
+    overlay
+      .querySelector("[data-cancel]")
+      .addEventListener("click", () => close(null));
     overlay.addEventListener("mousedown", (e) => {
       if (e.target === overlay) {
         close(null);
@@ -120,7 +156,8 @@ export function openForm({ title, fields, submitLabel = "Save" }) {
       const values = {};
       fields.forEach((field) => {
         const input = overlay.querySelector(`#f_${field.name}`);
-        values[field.name] = field.type === "checkbox" ? input.checked : input.value.trim();
+        values[field.name] =
+          field.type === "checkbox" ? input.checked : input.value.trim();
       });
       close(values);
     });
