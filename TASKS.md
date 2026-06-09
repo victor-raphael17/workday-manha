@@ -123,7 +123,7 @@ Itens transversais (frontend + backend) e de processo.
 
 ### 🔴 Crítico
 
-- [ ] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`,
+- [x] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`,
   `backend/src/Core/Router.php`
   Hoje só `AuthController::me/logout` chamam `AuthService::authenticate()`; os demais endpoints
   (`/api/medications`, `/api/patients`, `/api/suppliers`, `/api/sales`, `/api/prescriptions`,
