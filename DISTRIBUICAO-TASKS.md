@@ -9,25 +9,25 @@
 - [ ] **Parâmetro `reason` do ajuste de estoque é coletado e descartado**
 
 ### FRONTEND
-- [ ] Escapar dados da API ante de injetar via `innerHTML` (XSS)
-- [ ] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144`
-- [ ] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165`
-- [ ] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36`
-- [ ] **Ligar ou remover os botões decorativos da topbar** — `frontend/assets/js/shell.js:74`
-- [ ] **Loading state e prevenção de duplo-submit nos forms** —
-- [ ] **Focus trap nos modais** — `frontend/assets/js/ui.js:46`
-- [ ] **Externalizar a identidade da filial** — `frontend/assets/js/data.js`
+- [ ] Escapar dados da API ante de injetar via `innerHTML` (XSS) (Paulo Eduardo)
+- [ ] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144` (Murilo)
+- [ ] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165` (Matheus)
+- [ ] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36` (Jeff)
+- [ ] **Ligar ou remover os botões decorativos da topbar** — `frontend/assets/js/shell.js:74` (Matheus)
+- [ ] **Loading state e prevenção de duplo-submit nos forms** — (Jeff)
+- [ ] **Focus trap nos modais** — `frontend/assets/js/ui.js:46` (Murilo)
+- [ ] **Externalizar a identidade da filial** — `frontend/assets/js/data.js` (Paulo Eduardo)
 - [ ] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json`
 
 ### BACKEND
-- [ ] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`,
-- [ ] Remover `SessionRepository::purgeExpired()` — `backend/src/Repositories/SessionRepository.php:56`
-- [ ] Endpoints sem consumidor de UI - `GET /api/medications/categories` — `backend/routes/api.php`
-- [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/medications/{id}` — `backend/routes/api.php`
-- [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/patients/{id}` — `backend/routes/api.php`
-- [ ] Endpoints sem consumidor de UI - `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php`
-- [ ] **Paginação nos endpoints de listagem** — `backend/src/Repositories/`
-- [ ] **Suite de testes automatizados** — `backend/tests/`
+- [ ] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`, (Murilo)
+- [ ] Remover `SessionRepository::purgeExpired()` — `backend/src/Repositories/SessionRepository.php:56` (Paulo Eduardo)
+- [ ] Endpoints sem consumidor de UI - `GET /api/medications/categories` — `backend/routes/api.php` (Paulo Eduardo)
+- [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/medications/{id}` — `backend/routes/api.php` (Jeff)
+- [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/patients/{id}` — `backend/routes/api.php` (Jeff)
+- [ ] Endpoints sem consumidor de UI - `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php` (Murilo)
+- [ ] **Paginação nos endpoints de listagem** — `backend/src/Repositories/` (Matheus)
+- [ ] **Suite de testes automatizados** — `backend/tests/` (Matheus)
 
 
 ## GRUPO FABIO:
