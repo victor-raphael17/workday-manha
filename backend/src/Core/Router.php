@@ -6,6 +6,7 @@ namespace App\Core;
 
 use App\Core\Exceptions\HttpException;
 use App\Core\Exceptions\NotFoundException;
+use App\Services\AuthService;
 
 /**
  * Minimal regex-based router.
@@ -18,11 +19,12 @@ final class Router
 {
     /** @var array<int, array{method: string, regex: string, params: string[], handler: array{0: class-string, 1: string}}> */
     private array $routes = [];
+    private int $authGroupDepth = 0;
 
     /**
      * @param array{0: class-string, 1: string} $handler
      */
-    public function add(string $method, string $path, array $handler): void
+    public function add(string $method, string $path, array $handler, bool $protected = false): void
     {
         $params = [];
         $regex = preg_replace_callback(
@@ -39,32 +41,44 @@ final class Router
             'regex'   => '#^' . $regex . '$#',
             'params'  => $params,
             'handler' => $handler,
+            'protected' => $protected || $this->authGroupDepth > 0,
         ];
     }
 
-    public function get(string $path, array $handler): void
+    public function get(string $path, array $handler, bool $protected = false): void
     {
-        $this->add('GET', $path, $handler);
+        $this->add('GET', $path, $handler, $protected);
     }
 
-    public function post(string $path, array $handler): void
+    public function post(string $path, array $handler, bool $protected = false): void
     {
-        $this->add('POST', $path, $handler);
+        $this->add('POST', $path, $handler, $protected);
     }
 
-    public function put(string $path, array $handler): void
+    public function put(string $path, array $handler, bool $protected = false): void
     {
-        $this->add('PUT', $path, $handler);
+        $this->add('PUT', $path, $handler, $protected);
     }
 
-    public function patch(string $path, array $handler): void
+    public function patch(string $path, array $handler, bool $protected = false): void
     {
-        $this->add('PATCH', $path, $handler);
+        $this->add('PATCH', $path, $handler, $protected);
     }
 
-    public function delete(string $path, array $handler): void
+    public function delete(string $path, array $handler, bool $protected = false): void
     {
-        $this->add('DELETE', $path, $handler);
+        $this->add('DELETE', $path, $handler, $protected);
+    }
+
+    public function middleware(string $name, \Closure $callback): void
+    {
+        if ($name === 'auth') {
+            $this->authGroupDepth++;
+            $callback($this);
+            $this->authGroupDepth--;
+        } else {
+            $callback($this);
+        }
     }
 
     public function dispatch(Request $request): Response
@@ -81,6 +95,10 @@ final class Router
             if ($route['method'] !== $request->method) {
                 $methodMatched = true;
                 continue;
+            }
+
+            if($route['protected']) {
+                (new AuthService())->authenticate($request->bearerToken());
             }
 
             array_shift($matches);
