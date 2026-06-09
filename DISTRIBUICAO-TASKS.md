@@ -36,18 +36,18 @@
 - [ ] **Pipeline de CI (build + lint + testes)**
 
 ### FRONTEND
-- [ ] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
+- [x] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
 - [ ] Remover wrapper `api.sales` — `frontend/assets/js/api.js:163`
 - [ ] **CSS potencialmente não usado** — `frontend/assets/css/app.css`
 - [ ] **Implementar a busca global da topbar** — `frontend/assets/js/shell.js:64`
-- [ ] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
+- [x] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
 - [ ] **Feedback de offline / retry de rede** — `frontend/assets/js/api.js:107`
 - [ ] **`aria-live` nos toasts e estados** — `frontend/assets/js/ui.js:11`
 - [ ] **Extrair helper de render de tabela reutilizável** — `frontend/assets/js/page-behaviors.js`
 - [ ] **Adicionar ESLint + Prettier** — `frontend/package.json`
 
 ### BACKEND
-- [ ] Remover `Env::int()` — `backend/src/Support/Env.php:37`
+- [x] Remover `Env::int()` — `backend/src/Support/Env.php:37`
 - [ ] Endpoints sem consumidor de UI - `GET /api/medications/{id}` — `backend/routes/api.php`
 - [ ] Endpoints sem consumidor de UI - `GET /api/medications/low-stock` e `GET /api/medications/expiring` — `backend/routes/api.php`
 - [ ] Endpoints sem consumidor de UI - `GET /api/auth/me` — `backend/routes/api.php`
