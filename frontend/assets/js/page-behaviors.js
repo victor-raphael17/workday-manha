@@ -309,6 +309,8 @@ async function bindInventory() {
   search?.addEventListener("input", render);
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    addButton.disabled = true;
     const values = await openForm({
       title: "Add medication",
       submitLabel: "Create",
@@ -345,6 +347,8 @@ async function bindInventory() {
       await load();
     } catch (error) {
       reportError(error);
+      addButton.disabled = false;
+      addButton.textContent = "Create Medication";
     }
   });
 
@@ -368,12 +372,18 @@ async function bindInventory() {
     if (!delta) {
       return;
     }
+
+    receiveChip.disabled = true;
+    receiveChip.textContent = "Applying…";
+
     try {
       await api.adjustStock(m.id, delta, values.reason || null);
       toast(`Stock updated for ${m.name}.`, "success");
       await load();
     } catch (error) {
       reportError(error);
+      receiveChip.disabled = false;
+      receiveChip.textContent = "Apply stock change";
     }
   });
 
@@ -568,10 +578,13 @@ async function bindPos() {
   });
 
   payButton?.addEventListener("click", async () => {
+    event.preventDefault();
     if (!cart.length) {
       return;
     }
     payButton.disabled = true;
+    payButton.textContent = "Processing…";
+
     try {
       const sale = await api.createSale({
         payment_method: methodSelect?.value || "card",
@@ -683,6 +696,9 @@ async function bindPrescriptions() {
   };
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault(); 
+    addButton.disabled = true;
+    addButton.textContent = "Loading…";
     let patients;
     let medications;
     try {
@@ -717,6 +733,8 @@ async function bindPrescriptions() {
       await load();
     } catch (error) {
       reportError(error);
+      addButton.disabled = false;
+      addButton.textContent = "Create Prescription";
     }
   });
 
@@ -839,6 +857,8 @@ async function bindPatients() {
   search?.addEventListener("input", render);
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    addButton.disabled = true;
     const values = await openForm({
       title: "Add patient",
       submitLabel: "Create",
@@ -865,6 +885,8 @@ async function bindPatients() {
       await load();
     } catch (error) {
       reportError(error);
+      addButton.disabled = false;
+      addButton.textContent = "Add Patient";
     }
   });
 
@@ -1025,6 +1047,8 @@ async function bindOrders() {
   };
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    addButton.disabled = true;
     let suppliers;
     let medications;
     try {
@@ -1061,6 +1085,7 @@ async function bindOrders() {
       await load();
     } catch (error) {
       reportError(error);
+      addButton.disabled = false;
     }
   });
 
