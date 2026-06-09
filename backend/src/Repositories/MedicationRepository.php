@@ -42,6 +42,7 @@ final class MedicationRepository extends Repository
         }
 
         $sql .= ' ORDER BY name ASC';
+        $sql .= ' LIMIT 8';
 
         return $this->fetchAll($sql, $bindings);
     }

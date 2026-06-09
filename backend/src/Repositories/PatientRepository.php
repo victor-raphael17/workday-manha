@@ -27,6 +27,7 @@ final class PatientRepository extends Repository
         }
 
         $sql .= ' ORDER BY name ASC';
+        $sql .= ' LIMIT 8';
 
         return array_map([$this, 'hydrate'], $this->fetchAll($sql, $bindings));
     }
