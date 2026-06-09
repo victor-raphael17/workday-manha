@@ -30,9 +30,16 @@ return static function (Router $r): void {
     // Protegidas — exige token válido em todas abaixo
     $r->middleware('auth', function (Router $r): void {
 
-        // Authentication
-        $r->get('/api/auth/me', [AuthController::class, 'me']);
-        $r->post('/api/auth/logout', [AuthController::class, 'logout']);
+    // Medications / inventory ----------------------------------------------
+    $r->get('/api/medications', [MedicationController::class, 'index']);
+    $r->get('/api/medications/categories', [MedicationController::class, 'categories']);
+    $r->get('/api/medications/low-stock', [MedicationController::class, 'lowStock']);
+    $r->get('/api/medications/expiring', [MedicationController::class, 'expiring']);
+    $r->post('/api/medications', [MedicationController::class, 'store']);
+    $r->put('/api/medications/{id}', [MedicationController::class, 'update']);
+    $r->patch('/api/medications/{id}', [MedicationController::class, 'update']);
+    $r->post('/api/medications/{id}/stock', [MedicationController::class, 'adjustStock']);
+    $r->delete('/api/medications/{id}', [MedicationController::class, 'destroy']);
 
         // Dashboard
         $r->get('/api/dashboard', [DashboardController::class, 'summary']);

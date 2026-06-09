@@ -36,11 +36,6 @@ final class MedicationController extends Controller
         return Response::ok($this->medications->list($filters));
     }
 
-    public function show(Request $request): Response
-    {
-        return Response::ok($this->medications->get($this->intParam($request, 'id')));
-    }
-
     public function store(Request $request): Response
     {
         $data = $this->validate($request, [
