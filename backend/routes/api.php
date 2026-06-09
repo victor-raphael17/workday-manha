@@ -40,7 +40,6 @@ return static function (Router $r): void {
     $r->get('/api/medications/low-stock', [MedicationController::class, 'lowStock']);
     $r->get('/api/medications/expiring', [MedicationController::class, 'expiring']);
     $r->post('/api/medications', [MedicationController::class, 'store']);
-    $r->get('/api/medications/{id}', [MedicationController::class, 'show']);
     $r->put('/api/medications/{id}', [MedicationController::class, 'update']);
     $r->patch('/api/medications/{id}', [MedicationController::class, 'update']);
     $r->post('/api/medications/{id}/stock', [MedicationController::class, 'adjustStock']);
