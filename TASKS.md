@@ -14,7 +14,7 @@
 
 Itens transversais (frontend + backend) e de processo.
 
-- [ ] **Parâmetro `reason` do ajuste de estoque é coletado e descartado** (ponta a ponta)
+- [x] **Parâmetro `reason` do ajuste de estoque é coletado e descartado** (ponta a ponta)
   Coletado no form (`frontend/assets/js/page-behaviors.js:361`), enviado via
   `adjustStock(id, delta, reason)` (`frontend/assets/js/api.js:146`), validado em
   `backend/src/Controllers/MedicationController.php:88`, mas
