@@ -351,6 +351,8 @@ async function bindInventory() {
   search?.addEventListener("input", render);
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    addButton.disabled = true;
     const values = await openForm({
       title: "Add medication",
       submitLabel: "Create",
@@ -404,6 +406,10 @@ async function bindInventory() {
     } catch (error) {
       reportError(error);
     }
+    finally {      
+      addButton.disabled = false;
+    }
+    
   });
 
   receiveChip?.addEventListener("click", async () => {
@@ -437,12 +443,17 @@ async function bindInventory() {
     if (!delta) {
       return;
     }
+
+    receiveChip.disabled = true;
+
     try {
       await api.adjustStock(m.id, delta, values.reason || null);
       toast(`Stock updated for ${m.name}.`, "success");
       await load();
     } catch (error) {
       reportError(error);
+      receiveChip.disabled = false;
+      receiveChip.textContent = "Apply stock change";
     }
   });
 
@@ -651,10 +662,12 @@ async function bindPos() {
   });
 
   payButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    payButton.disabled = true;
     if (!cart.length) {
       return;
     }
-    payButton.disabled = true;
+
     try {
       const sale = await api.createSale({
         payment_method: methodSelect?.value || "card",
@@ -673,7 +686,10 @@ async function bindPos() {
       render();
     } catch (error) {
       reportError(error);
-      payButton.disabled = false;
+    }
+
+    finally {
+      payButton.disabled = true;
     }
   });
 
@@ -789,6 +805,9 @@ async function bindPrescriptions() {
   };
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault(); 
+    addButton.disabled = true;
+    addButton.textContent = "Loading…";
     let patients;
     let medications;
     try {
@@ -855,6 +874,11 @@ async function bindPrescriptions() {
       await load();
     } catch (error) {
       reportError(error);
+      
+    }
+    finally {      
+      addButton.disabled = false;
+      
     }
   });
 
@@ -983,6 +1007,8 @@ async function bindPatients() {
   search?.addEventListener("input", render);
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    addButton.disabled = true;
     const values = await openForm({
       title: "Add patient",
       submitLabel: "Create",
@@ -1018,6 +1044,9 @@ async function bindPatients() {
       await load();
     } catch (error) {
       reportError(error);
+    }
+    finally {
+      addButton.disabled = false;
     }
   });
 
@@ -1207,6 +1236,8 @@ async function bindOrders() {
   };
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    addButton.disabled = true;
     let suppliers;
     let medications;
     try {
@@ -1276,7 +1307,13 @@ async function bindOrders() {
       await load();
     } catch (error) {
       reportError(error);
+      
     }
+    
+    finally {
+      addButton.disabled = false;
+    }
+
   });
 
   await load();
