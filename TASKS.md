@@ -41,7 +41,7 @@ Itens transversais (frontend + backend) e de processo.
 
 ### 🧹 Limpeza (remoção segura — sem call site)
 
-- [ ] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
+- [x] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
   Sem call site (`api.medication(` não aparece; os `rx.medication.*` são acesso a dado, não à
   função). Evidência: `grep -rn "api\.medication(" assets/js pages` → nada.
 
@@ -51,7 +51,7 @@ Itens transversais (frontend + backend) e de processo.
 - [ ] Remover wrapper `api.sales` — `frontend/assets/js/api.js:163`
   Sem call site. Evidência: `grep -rn "api\.sales(" assets/js pages` → só a definição.
 
-- [ ] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165`
+- [x] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165`
   Sem call site. Evidência: `grep -rn "voidSale" assets/js pages` → só a definição.
 
   > ⚠️ **`api.me` NÃO entra aqui.** Apesar de hoje não ter call site, mantê-lo: é o mecanismo
@@ -74,11 +74,11 @@ Itens transversais (frontend + backend) e de processo.
   handler que dispare busca. Evidência: `grep -rn "topbar-search" assets/js` → só markup + foco.
   Ligar a busca a medicamentos/pacientes/scripts ou remover o campo.
 
-- [ ] **Ligar ou remover os botões decorativos da topbar** — `frontend/assets/js/shell.js:74`
+- [x] **Ligar ou remover os botões decorativos da topbar** — `frontend/assets/js/shell.js:74`
   Botões "Notifications" (`bell`) e "Help" (`help-circle`) não têm listener. Evidência:
   `grep -rn "bell\|help-circle" assets/js` → só markup. Implementar a ação ou removê-los.
 
-- [ ] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
+- [x] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
   (`bindInventory`, `bindPatients`, vendas/pedidos)
   As tabelas renderizam todas as linhas de uma vez. Converge com a paginação do backend:
   consumir `?page=&per_page=` e adicionar controles de paginação.
@@ -100,7 +100,7 @@ Itens transversais (frontend + backend) e de processo.
   `toast()` insere mensagens sem região `aria-live`, então leitores de tela podem não anunciá-las.
   Adicionar `role="status"`/`aria-live="polite"` aos toasts e aos placeholders de erro.
 
-- [ ] **Externalizar a identidade da filial** — `frontend/assets/js/data.js`,
+- [x] **Externalizar a identidade da filial** — `frontend/assets/js/data.js`,
   `frontend/assets/js/shell.js:21`
   `branch` (nome, `shiftLead`, `role`) é hardcoded em `data.js` e usado como fallback no shell.
   Buscar do backend (perfil/filial) em vez de constante no bundle.
@@ -134,12 +134,12 @@ Itens transversais (frontend + backend) e de processo.
 
 ### 🧹 Limpeza (remoção segura — sem call site)
 
-- [ ] Remover `Env::int()` — `backend/src/Support/Env.php:37`
+- [x] Remover `Env::int()` — `backend/src/Support/Env.php:37`
   Método público nunca chamado. A config usa `Env::get()`/`Env::bool()` (`config/config.php`); o
   TTL de sessão é lido via `(int) Env::get(...)`, não via `Env::int()`. Evidência:
   `grep -rn "Env::int\|->int(" backend/` → nenhum call site.
 
-- [ ] Remover `SessionRepository::purgeExpired()` — `backend/src/Repositories/SessionRepository.php:56`
+- [x] Remover `SessionRepository::purgeExpired()` — `backend/src/Repositories/SessionRepository.php:56`
   Nunca chamado; a expiração já é tratada na leitura por `findValid()`. Evidência:
   `grep -rn "purgeExpired" backend/` → só a definição.
 
