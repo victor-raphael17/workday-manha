@@ -23,7 +23,10 @@ final class PatientController extends Controller
     {
         $search = $request->query('search');
 
-        return Response::ok($this->patients->list($search !== null ? (string) $search : null));
+        $page    = (int) ($request->query('page')    ?? 1);
+        $perPage = (int) ($request->query('per_page') ?? 25);
+
+        return Response::ok($this->patients->list($search !== null ? (string) $search : null, $page, $perPage));
     }
 
     public function show(Request $request): Response

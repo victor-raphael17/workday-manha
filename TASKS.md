@@ -14,7 +14,7 @@
 
 Itens transversais (frontend + backend) e de processo.
 
-- [ ] **Parâmetro `reason` do ajuste de estoque é coletado e descartado** (ponta a ponta)
+- [x] **Parâmetro `reason` do ajuste de estoque é coletado e descartado** (ponta a ponta)
   Coletado no form (`frontend/assets/js/page-behaviors.js:361`), enviado via
   `adjustStock(id, delta, reason)` (`frontend/assets/js/api.js:146`), validado em
   `backend/src/Controllers/MedicationController.php:88`, mas
@@ -32,7 +32,7 @@ Itens transversais (frontend + backend) e de processo.
 
 ### 🔴 Crítico
 
-- [ ] **Escapar dados da API antes de injetar via `innerHTML` (XSS)** —
+- [x] **Escapar dados da API antes de injetar via `innerHTML` (XSS)** —
   `frontend/assets/js/page-behaviors.js`, `frontend/assets/js/shell.js`
   Várias telas montam HTML por template literal com `innerHTML` interpolando strings vindas da
   API (nomes de paciente/medicamento etc.) sem escape. Evidência:
@@ -41,17 +41,17 @@ Itens transversais (frontend + backend) e de processo.
 
 ### 🧹 Limpeza (remoção segura — sem call site)
 
-- [ ] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
+- [x] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
   Sem call site (`api.medication(` não aparece; os `rx.medication.*` são acesso a dado, não à
   função). Evidência: `grep -rn "api\.medication(" assets/js pages` → nada.
 
-- [ ] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144`
+- [x] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144`
   Sem call site. Evidência: `grep -rn "\.categories(" assets/js pages` → só a definição.
 
 - [ ] Remover wrapper `api.sales` — `frontend/assets/js/api.js:163`
   Sem call site. Evidência: `grep -rn "api\.sales(" assets/js pages` → só a definição.
 
-- [ ] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165`
+- [x] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165`
   Sem call site. Evidência: `grep -rn "voidSale" assets/js pages` → só a definição.
 
   > ⚠️ **`api.me` NÃO entra aqui.** Apesar de hoje não ter call site, mantê-lo: é o mecanismo
@@ -64,7 +64,7 @@ Itens transversais (frontend + backend) e de processo.
 
 ### ✨ Melhorias
 
-- [ ] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36`
+- [x] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36`
   O `auth` guarda `expires_at` mas nunca o verifica; a sessão só é descartada ao receber 401.
   Validar `expires_at` no route guard (`main.js:8`) e redirecionar ao login antes de uma
   requisição falhar. Pode usar `api.me()` para validar o token contra o servidor.
@@ -74,16 +74,16 @@ Itens transversais (frontend + backend) e de processo.
   handler que dispare busca. Evidência: `grep -rn "topbar-search" assets/js` → só markup + foco.
   Ligar a busca a medicamentos/pacientes/scripts ou remover o campo.
 
-- [ ] **Ligar ou remover os botões decorativos da topbar** — `frontend/assets/js/shell.js:74`
+- [x] **Ligar ou remover os botões decorativos da topbar** — `frontend/assets/js/shell.js:74`
   Botões "Notifications" (`bell`) e "Help" (`help-circle`) não têm listener. Evidência:
   `grep -rn "bell\|help-circle" assets/js` → só markup. Implementar a ação ou removê-los.
 
-- [ ] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
+- [x] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
   (`bindInventory`, `bindPatients`, vendas/pedidos)
   As tabelas renderizam todas as linhas de uma vez. Converge com a paginação do backend:
   consumir `?page=&per_page=` e adicionar controles de paginação.
 
-- [ ] **Loading state e prevenção de duplo-submit nos forms** —
+- [x] **Loading state e prevenção de duplo-submit nos forms** —
   `frontend/assets/js/page-behaviors.js`
   Botões "add"/"receive"/"pay" disparam ações assíncronas sem desabilitar o controle durante a
   requisição. Aplicar o padrão que o login já usa (`login.js:73`) para evitar envio duplicado.
@@ -92,7 +92,7 @@ Itens transversais (frontend + backend) e de processo.
   Em falha de rede o cliente lança `ApiError(0)` e a tela mostra o erro, mas sem opção de tentar
   de novo. Adicionar retry/botão "tentar novamente" e um indicador global de "API indisponível".
 
-- [ ] **Focus trap nos modais** — `frontend/assets/js/ui.js:46`
+- [x] **Focus trap nos modais** — `frontend/assets/js/ui.js:46`
   `openForm()` já trata Escape, clique fora e foca o primeiro campo, mas o Tab pode sair do modal
   (sem focus trap). Prender o foco dentro do `.modal-card` enquanto aberto.
 
@@ -100,7 +100,7 @@ Itens transversais (frontend + backend) e de processo.
   `toast()` insere mensagens sem região `aria-live`, então leitores de tela podem não anunciá-las.
   Adicionar `role="status"`/`aria-live="polite"` aos toasts e aos placeholders de erro.
 
-- [ ] **Externalizar a identidade da filial** — `frontend/assets/js/data.js`,
+- [x] **Externalizar a identidade da filial** — `frontend/assets/js/data.js`,
   `frontend/assets/js/shell.js:21`
   `branch` (nome, `shiftLead`, `role`) é hardcoded em `data.js` e usado como fallback no shell.
   Buscar do backend (perfil/filial) em vez de constante no bundle.
@@ -110,7 +110,7 @@ Itens transversais (frontend + backend) e de processo.
   inventory/patients/orders/sales. Extrair um helper único de render (linhas + estados
   loading/empty/error). Bom momento para centralizar o `escapeHtml()` do item crítico de XSS.
 
-- [ ] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json`
+- [x] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json`
   Sem test runner e sem arquivos `*.test.js`/`*.spec.js`. Adicionar Vitest + jsdom e cobrir os
   helpers de `api.js` (`formatDate`, `initials`, `toneClass`, parsing do envelope/erro).
 
@@ -123,7 +123,7 @@ Itens transversais (frontend + backend) e de processo.
 
 ### 🔴 Crítico
 
-- [ ] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`,
+- [x] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`,
   `backend/src/Core/Router.php`
   Hoje só `AuthController::me/logout` chamam `AuthService::authenticate()`; os demais endpoints
   (`/api/medications`, `/api/patients`, `/api/suppliers`, `/api/sales`, `/api/prescriptions`,
@@ -134,12 +134,12 @@ Itens transversais (frontend + backend) e de processo.
 
 ### 🧹 Limpeza (remoção segura — sem call site)
 
-- [ ] Remover `Env::int()` — `backend/src/Support/Env.php:37`
+- [x] Remover `Env::int()` — `backend/src/Support/Env.php:37`
   Método público nunca chamado. A config usa `Env::get()`/`Env::bool()` (`config/config.php`); o
   TTL de sessão é lido via `(int) Env::get(...)`, não via `Env::int()`. Evidência:
   `grep -rn "Env::int\|->int(" backend/` → nenhum call site.
 
-- [ ] Remover `SessionRepository::purgeExpired()` — `backend/src/Repositories/SessionRepository.php:56`
+- [x] Remover `SessionRepository::purgeExpired()` — `backend/src/Repositories/SessionRepository.php:56`
   Nunca chamado; a expiração já é tratada na leitura por `findValid()`. Evidência:
   `grep -rn "purgeExpired" backend/` → só a definição.
 
@@ -152,7 +152,7 @@ Itens transversais (frontend + backend) e de processo.
 - [ ] `GET /api/medications/{id}` — `backend/routes/api.php`
   Sem consumidor. Tela natural: detalhe de medicamento (espelha o `api.patient(id)` que já existe).
 
-- [ ] `GET /api/medications/categories` — `backend/routes/api.php`
+- [x] `GET /api/medications/categories` — `backend/routes/api.php`
   Sem consumidor. Útil para popular filtros de categoria no inventário.
 
 - [ ] `GET /api/medications/low-stock` e `GET /api/medications/expiring` — `backend/routes/api.php`
@@ -172,7 +172,7 @@ Itens transversais (frontend + backend) e de processo.
   Apenas `GET /api/suppliers` é usado; o restante não tem wrapper nem tela. Construir gestão de
   fornecedores ou adiar.
 
-- [ ] `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php`
+- [x] `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php`
   Sem consumidor. Feature natural: histórico de vendas + estorno na tela de POS.
 
 ### ✨ Melhorias

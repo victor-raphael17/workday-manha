@@ -38,9 +38,11 @@ final class PurchaseOrderService
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function list(?string $state = null): array
+    public function list(?string $state = null, int $page = 1, int $perPage = 25): array
     {
-        return array_map([$this, 'present'], $this->orders->all($state));
+        $result = $this->orders->all($state, $page, $perPage);
+        $result['data'] = array_map([$this, 'present'], $result['data']);
+        return $result;
     }
 
     /**

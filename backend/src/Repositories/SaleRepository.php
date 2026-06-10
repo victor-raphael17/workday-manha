@@ -14,7 +14,7 @@ final class SaleRepository extends Repository
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function all(?string $state = null): array
+    public function all(?string $state = null, int $page = 1, int $perPage = 25): array
     {
         $sql = 'SELECT ' . self::COLUMNS . ' FROM sales';
         $bindings = [];
@@ -24,9 +24,22 @@ final class SaleRepository extends Repository
             $bindings['state'] = $state;
         }
 
-        $sql .= ' ORDER BY created_at DESC';
+        $sql .= ' ORDER BY created_at DESC LIMIT :limit OFFSET :offset';
 
-        return $this->fetchAll($sql, $bindings);
+        $total = (int) ($this->fetchOne(
+            'SELECT COUNT(*) AS n FROM sales',
+            $bindings
+        )['n'] ?? 0);
+
+        $offset = ($page - 1) * $perPage;
+
+        return [
+            'data'      => $this->fetchAll($sql, $bindings + ['limit' => $perPage, 'offset' => $offset]),
+            'total'     => $total,
+            'page'      => $page,
+            'per_page'  => $perPage,
+            'last_page' => (int) ceil($total / $perPage),
+        ];
     }
 
     /**

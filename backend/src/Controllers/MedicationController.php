@@ -33,12 +33,10 @@ final class MedicationController extends Controller
             $filters['controlled'] = in_array(strtolower((string) $controlled), ['1', 'true', 'yes'], true);
         }
 
-        return Response::ok($this->medications->list($filters));
-    }
+        $page    = (int) ($request->query('page')    ?? 1);
+        $perPage = (int) ($request->query('per_page') ?? 25);
 
-    public function show(Request $request): Response
-    {
-        return Response::ok($this->medications->get($this->intParam($request, 'id')));
+        return Response::ok($this->medications->list($filters, $page, $perPage));
     }
 
     public function store(Request $request): Response
