@@ -24,9 +24,11 @@ final class PatientService
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function list(?string $search = null): array
+    public function list(?string $search = null, int $page = 1, int $perPage = 25): array
     {
-        return array_map([$this, 'present'], $this->patients->all($search));
+        $result = $this->patients->all($search, $page, $perPage);
+        $result['data'] = array_map([$this, 'present'], $result['data']);
+        return $result;
     }
 
     /**

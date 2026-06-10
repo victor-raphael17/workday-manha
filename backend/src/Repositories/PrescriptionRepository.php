@@ -24,7 +24,7 @@ final class PrescriptionRepository extends Repository
      * @param array{state?: string, patient_id?: int} $filters
      * @return array<int, array<string, mixed>>
      */
-    public function all(array $filters = []): array
+    public function all(array $filters = [], int $page = 1, int $perPage = 25): array
     {
         $sql = self::SELECT;
         $where = [];
@@ -44,9 +44,25 @@ final class PrescriptionRepository extends Repository
             $sql .= ' WHERE ' . implode(' AND ', $where);
         }
 
-        $sql .= ' ORDER BY p.created_at DESC';
+        $sql .= ' ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset';
 
-        return $this->fetchAll($sql, $bindings);
+        $total = (int) ($this->fetchOne(
+            'SELECT COUNT(*) AS n FROM prescriptions p
+             JOIN patients pt ON pt.id = p.patient_id
+             JOIN medications m ON m.id = p.medication_id'
+            . ($where !== [] ? ' WHERE ' . implode(' AND ', $where) : ''),
+            $bindings
+        )['n'] ?? 0);
+
+        $offset = ($page - 1) * $perPage;
+
+        return [
+            'data'      => $this->fetchAll($sql, $bindings + ['limit' => $perPage, 'offset' => $offset]),
+            'total'     => $total,
+            'page'      => $page,
+            'per_page'  => $perPage,
+            'last_page' => (int) ceil($total / $perPage),
+        ];
     }
 
     /**

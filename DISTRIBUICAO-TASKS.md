@@ -6,28 +6,28 @@
 ## GRUPO BENÍCIO:
 
 ### TECH LEAD
-- [ ] **Parâmetro `reason` do ajuste de estoque é coletado e descartado**
+- [x] **Parâmetro `reason` do ajuste de estoque é coletado e descartado**
 
 ### FRONTEND
-- [ ] Escapar dados da API ante de injetar via `innerHTML` (XSS)
-- [ ] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144`
-- [ ] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165`
-- [ ] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36`
-- [ ] **Ligar ou remover os botões decorativos da topbar** — `frontend/assets/js/shell.js:74`
-- [ ] **Loading state e prevenção de duplo-submit nos forms** —
-- [ ] **Focus trap nos modais** — `frontend/assets/js/ui.js:46`
-- [ ] **Externalizar a identidade da filial** — `frontend/assets/js/data.js`
-- [ ] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json`
+- [x] Escapar dados da API ante de injetar via `innerHTML` (XSS) (Paulo Eduardo)
+- [x] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144` (Murilo)
+- [x] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165` (Matheus)
+- [ ] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36` (Jeff)
+- [x] **Ligar ou remover os botões decorativos da topbar** — `frontend/assets/js/shell.js:74` (Matheus)
+- [x] **Loading state e prevenção de duplo-submit nos forms** — (Jeff)
+- [x] **Focus trap nos modais** — `frontend/assets/js/ui.js:46` (Murilo)
+- [x] **Externalizar a identidade da filial** — `frontend/assets/js/data.js` (Paulo Eduardo)
+- [x] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json` (Murilo)
 
 ### BACKEND
-- [ ] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`,
-- [ ] Remover `SessionRepository::purgeExpired()` — `backend/src/Repositories/SessionRepository.php:56`
-- [ ] Endpoints sem consumidor de UI - `GET /api/medications/categories` — `backend/routes/api.php`
-- [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/medications/{id}` — `backend/routes/api.php`
-- [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/patients/{id}` — `backend/routes/api.php`
-- [ ] Endpoints sem consumidor de UI - `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php`
-- [ ] **Paginação nos endpoints de listagem** — `backend/src/Repositories/`
-- [ ] **Suite de testes automatizados** — `backend/tests/`
+- [x] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`, (Murilo)
+- [x] Remover `SessionRepository::purgeExpired()` — `backend/src/Repositories/SessionRepository.php:56` (Paulo Eduardo)
+- [x] Endpoints sem consumidor de UI - `GET /api/medications/categories` — `backend/routes/api.php` (Paulo Eduardo)
+- [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/medications/{id}` — `backend/routes/api.php` (Jeff)
+- [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/patients/{id}` — `backend/routes/api.php` (Jeff)
+- [x] Endpoints sem consumidor de UI - `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php` (Murilo)
+- [ ] **Paginação nos endpoints de listagem** — `backend/src/Repositories/` (Matheus)
+- [ ] **Suite de testes automatizados** — `backend/tests/` (Matheus)
 
 
 ## GRUPO FABIO:
@@ -36,18 +36,18 @@
 - [ ] **Pipeline de CI (build + lint + testes)**
 
 ### FRONTEND
-- [ ] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
+- [x] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
 - [ ] Remover wrapper `api.sales` — `frontend/assets/js/api.js:163`
 - [ V ] **CSS potencialmente não usado** — `frontend/assets/css/app.css`
 - [ ] **Implementar a busca global da topbar** — `frontend/assets/js/shell.js:64`
-- [ ] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
+- [x] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
 - [ ] **Feedback de offline / retry de rede** — `frontend/assets/js/api.js:107`
 - [ ] **`aria-live` nos toasts e estados** — `frontend/assets/js/ui.js:11`
 - [ ] **Extrair helper de render de tabela reutilizável** — `frontend/assets/js/page-behaviors.js`
 - [ ] **Adicionar ESLint + Prettier** — `frontend/package.json`
 
 ### BACKEND
-- [ ] Remover `Env::int()` — `backend/src/Support/Env.php:37`
+- [x] Remover `Env::int()` — `backend/src/Support/Env.php:37`
 - [ ] Endpoints sem consumidor de UI - `GET /api/medications/{id}` — `backend/routes/api.php`
 - [ ] Endpoints sem consumidor de UI - `GET /api/medications/low-stock` e `GET /api/medications/expiring` — `backend/routes/api.php`
 - [ ] Endpoints sem consumidor de UI - `GET /api/auth/me` — `backend/routes/api.php`

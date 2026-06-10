@@ -31,9 +31,11 @@ final class SaleService
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function list(?string $state = null): array
+    public function list(?string $state = null, int $page = 1, int $perPage = 25): array
     {
-        return array_map([$this, 'presentSummary'], $this->sales->all($state));
+        $result = $this->sales->all($state, $page, $perPage);
+        $result['data'] = array_map([$this, 'presentSummary'], $result['data']);
+        return $result;
     }
 
     /**
