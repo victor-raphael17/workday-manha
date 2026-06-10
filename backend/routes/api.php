@@ -41,18 +41,12 @@ return static function (Router $r): void {
     $r->get('/api/medications/expiring', [MedicationController::class, 'expiring']);
     $r->post('/api/medications', [MedicationController::class, 'store']);
     $r->get('/api/medications/{id}', [MedicationController::class, 'show']);
-    $r->put('/api/medications/{id}', [MedicationController::class, 'update']);
-    $r->patch('/api/medications/{id}', [MedicationController::class, 'update']);
     $r->post('/api/medications/{id}/stock', [MedicationController::class, 'adjustStock']);
-    $r->delete('/api/medications/{id}', [MedicationController::class, 'destroy']);
 
     // Patients --------------------------------------------------------------
     $r->get('/api/patients', [PatientController::class, 'index']);
     $r->post('/api/patients', [PatientController::class, 'store']);
     $r->get('/api/patients/{id}', [PatientController::class, 'show']);
-    $r->put('/api/patients/{id}', [PatientController::class, 'update']);
-    $r->patch('/api/patients/{id}', [PatientController::class, 'update']);
-    $r->delete('/api/patients/{id}', [PatientController::class, 'destroy']);
 
     // Suppliers -------------------------------------------------------------
     $r->get('/api/suppliers', [SupplierController::class, 'index']);
