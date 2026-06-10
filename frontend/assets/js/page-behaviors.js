@@ -736,8 +736,11 @@ async function bindPrescriptions() {
       await load();
     } catch (error) {
       reportError(error);
+      
+    }
+    finally {      
       addButton.disabled = false;
-      addButton.textContent = "Create Prescription";
+      
     }
   });
 
@@ -888,8 +891,9 @@ async function bindPatients() {
       await load();
     } catch (error) {
       reportError(error);
+    }
+    finally {
       addButton.disabled = false;
-      addButton.textContent = "Add Patient";
     }
   });
 
