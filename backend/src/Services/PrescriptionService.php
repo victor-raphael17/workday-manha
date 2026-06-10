@@ -39,9 +39,11 @@ final class PrescriptionService
      * @param array{state?: string, patient_id?: int} $filters
      * @return array<int, array<string, mixed>>
      */
-    public function list(array $filters = []): array
+    public function list(array $filters = [], int $page = 1, int $perPage = 25): array
     {
-        return array_map([$this, 'present'], $this->prescriptions->all($filters));
+        $result = $this->prescriptions->all($filters, $page, $perPage);
+        $result['data'] = array_map([$this, 'present'], $result['data']);
+        return $result;
     }
 
     /**

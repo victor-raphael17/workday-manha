@@ -25,7 +25,7 @@ final class PurchaseOrderRepository extends Repository
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function all(?string $state = null): array
+    public function all(?string $state = null, int $page = 1, int $perPage = 25): array
     {
         $sql = self::LIST_SELECT;
         $bindings = [];
@@ -35,9 +35,22 @@ final class PurchaseOrderRepository extends Repository
             $bindings['state'] = $state;
         }
 
-        $sql .= ' GROUP BY po.id, s.name ORDER BY po.created_at DESC';
+        $sql .= ' GROUP BY po.id, s.name ORDER BY po.created_at DESC LIMIT :limit OFFSET :offset';
 
-        return $this->fetchAll($sql, $bindings);
+        $total = (int) ($this->fetchOne(
+            'SELECT COUNT(*) AS n FROM purchase_orders po',
+            $bindings
+        )['n'] ?? 0);
+
+        $offset = ($page - 1) * $perPage;
+
+        return [
+            'data'      => $this->fetchAll($sql, $bindings + ['limit' => $perPage, 'offset' => $offset]),
+            'total'     => $total,
+            'page'      => $page,
+            'per_page'  => $perPage,
+            'last_page' => (int) ceil($total / $perPage),
+        ];
     }
 
     /**

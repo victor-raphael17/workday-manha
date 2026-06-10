@@ -16,7 +16,7 @@ final class MedicationRepository extends Repository
      * @param array{search?: string, category?: string, controlled?: bool} $filters
      * @return array<int, array<string, mixed>>
      */
-    public function all(array $filters = []): array
+    public function all(array $filters = [], int $page = 1, int $perPage = 25): array
     {
         $sql = 'SELECT ' . self::COLUMNS . ' FROM medications';
         $where = [];
@@ -41,10 +41,22 @@ final class MedicationRepository extends Repository
             $sql .= ' WHERE ' . implode(' AND ', $where);
         }
 
-        $sql .= ' ORDER BY name ASC';
-        $sql .= ' LIMIT 8';
+        $sql .= ' ORDER BY name ASC LIMIT :limit OFFSET :offset';
 
-        return $this->fetchAll($sql, $bindings);
+        $total = (int) ($this->fetchOne(
+            'SELECT COUNT(*) AS n FROM medications',
+            $bindings
+        )['n'] ?? 0);
+
+        $offset = ($page - 1) * $perPage;
+
+        return [
+            'data'      => $this->fetchAll($sql, $bindings + ['limit' => $perPage, 'offset' => $offset]),
+            'total'     => $total,
+            'page'      => $page,
+            'per_page'  => $perPage,
+            'last_page' => (int) ceil($total / $perPage),
+        ];
     }
 
     /**

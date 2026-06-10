@@ -16,7 +16,7 @@ final class PatientRepository extends Repository
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function all(?string $search = null): array
+    public function all(?string $search = null, int $page = 1, int $perPage = 25): array
     {
         $sql = 'SELECT ' . self::COLUMNS . ' FROM patients';
         $bindings = [];
@@ -26,12 +26,23 @@ final class PatientRepository extends Repository
             $bindings['search'] = '%' . $search . '%';
         }
 
-        $sql .= ' ORDER BY name ASC';
-        $sql .= ' LIMIT 8';
+        $sql .= ' ORDER BY name ASC LIMIT :limit OFFSET :offset';
 
-        return array_map([$this, 'hydrate'], $this->fetchAll($sql, $bindings));
+        $total = (int) ($this->fetchOne(
+            'SELECT COUNT(*) AS n FROM patients',
+            $bindings
+        )['n'] ?? 0);
+
+        $offset = ($page - 1) * $perPage;
+
+        return [
+            'data'      => array_map([$this, 'hydrate'], $this->fetchAll($sql, $bindings + ['limit' => $perPage, 'offset' => $offset])),
+            'total'     => $total,
+            'page'      => $page,
+            'per_page'  => $perPage,
+            'last_page' => (int) ceil($total / $perPage),
+        ];
     }
-
     /**
      * @return array<string, mixed>|null
      */

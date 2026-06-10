@@ -23,7 +23,10 @@ final class PurchaseOrderController extends Controller
     {
         $state = $request->query('state');
 
-        return Response::ok($this->orders->list($state !== null ? (string) $state : null));
+        $page    = (int) ($request->query('page')    ?? 1);
+        $perPage = (int) ($request->query('per_page') ?? 25);
+
+        return Response::ok($this->orders->list($state !== null ? (string) $state : null, $page, $perPage));
     }
 
     public function show(Request $request): Response
