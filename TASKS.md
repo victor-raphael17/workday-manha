@@ -83,7 +83,7 @@ Itens transversais (frontend + backend) e de processo.
   As tabelas renderizam todas as linhas de uma vez. Converge com a paginação do backend:
   consumir `?page=&per_page=` e adicionar controles de paginação.
 
-- [ ] **Loading state e prevenção de duplo-submit nos forms** —
+- [x] **Loading state e prevenção de duplo-submit nos forms** —
   `frontend/assets/js/page-behaviors.js`
   Botões "add"/"receive"/"pay" disparam ações assíncronas sem desabilitar o controle durante a
   requisição. Aplicar o padrão que o login já usa (`login.js:73`) para evitar envio duplicado.
