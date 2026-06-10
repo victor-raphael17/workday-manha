@@ -6,7 +6,7 @@
 ## GRUPO BENÍCIO:
 
 ### TECH LEAD
-- [ ] **Parâmetro `reason` do ajuste de estoque é coletado e descartado**
+- [x] **Parâmetro `reason` do ajuste de estoque é coletado e descartado**
 
 ### FRONTEND
 - [ ] Escapar dados da API ante de injetar via `innerHTML` (XSS) (Paulo Eduardo)
