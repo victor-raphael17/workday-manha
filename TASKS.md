@@ -32,7 +32,7 @@ Itens transversais (frontend + backend) e de processo.
 
 ### 🔴 Crítico
 
-- [ ] **Escapar dados da API antes de injetar via `innerHTML` (XSS)** —
+- [x] **Escapar dados da API antes de injetar via `innerHTML` (XSS)** —
   `frontend/assets/js/page-behaviors.js`, `frontend/assets/js/shell.js`
   Várias telas montam HTML por template literal com `innerHTML` interpolando strings vindas da
   API (nomes de paciente/medicamento etc.) sem escape. Evidência:
@@ -152,7 +152,7 @@ Itens transversais (frontend + backend) e de processo.
 - [ ] `GET /api/medications/{id}` — `backend/routes/api.php`
   Sem consumidor. Tela natural: detalhe de medicamento (espelha o `api.patient(id)` que já existe).
 
-- [ ] `GET /api/medications/categories` — `backend/routes/api.php`
+- [x] `GET /api/medications/categories` — `backend/routes/api.php`
   Sem consumidor. Útil para popular filtros de categoria no inventário.
 
 - [ ] `GET /api/medications/low-stock` e `GET /api/medications/expiring` — `backend/routes/api.php`
