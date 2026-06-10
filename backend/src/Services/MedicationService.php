@@ -6,7 +6,9 @@ namespace App\Services;
 
 use App\Core\Exceptions\DomainException;
 use App\Core\Exceptions\NotFoundException;
+use App\Core\Database;
 use App\Repositories\MedicationRepository;
+use App\Repositories\StockMovementRepository;
 
 /**
  * Business logic for the medication catalogue and stock control.
@@ -22,9 +24,10 @@ final class MedicationService
     private const EXPIRY_SOON_DAYS = 90;
 
     public function __construct(
-        private readonly MedicationRepository $medications = new MedicationRepository(),
-    ) {
-    }
+    private readonly MedicationRepository $medications = new MedicationRepository(),
+    private readonly StockMovementRepository $stockMovements = new StockMovementRepository(),
+) {
+}
 
     /**
      * @param array{search?: string, category?: string, controlled?: bool} $filters
@@ -115,13 +118,23 @@ final class MedicationService
             throw new NotFoundException("Medication {$id} not found.");
         }
 
-        $updated = $this->medications->adjustStock($id, $delta);
+        $updated = Database::transaction(function () use ($id, $delta, $reason): ?array {
+    $updated = $this->medications->adjustStock($id, $delta);
 
-        if ($updated === null) {
-            throw new DomainException('Adjustment rejected: stock cannot go below zero.');
-        }
+    if ($updated === null) {
+        return null;
+    }
 
-        return $this->present($updated);
+    $this->stockMovements->create($id, $delta, $reason);
+
+    return $updated;
+});
+
+if ($updated === null) {
+    throw new DomainException('Adjustment rejected: stock cannot go below zero.');
+}
+
+return $this->present($updated);
     }
 
     public function delete(int $id): void

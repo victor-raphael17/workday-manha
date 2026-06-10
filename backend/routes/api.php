@@ -20,6 +20,7 @@ use App\Controllers\PurchaseOrderController;
 use App\Controllers\SaleController;
 use App\Controllers\SupplierController;
 use App\Core\Router;
+use App\Controllers\StockMovementController;
 
 return static function (Router $r): void {
     // Service info + health -------------------------------------------------
@@ -45,6 +46,10 @@ return static function (Router $r): void {
     $r->patch('/api/medications/{id}', [MedicationController::class, 'update']);
     $r->post('/api/medications/{id}/stock', [MedicationController::class, 'adjustStock']);
     $r->delete('/api/medications/{id}', [MedicationController::class, 'destroy']);
+
+    // Stock Movement --------------------------------------------------------
+
+    $r->get('/api/stock-movements', [StockMovementController::class, 'index']);
 
     // Patients --------------------------------------------------------------
     $r->get('/api/patients', [PatientController::class, 'index']);
