@@ -40,7 +40,10 @@ toggleButton?.addEventListener("click", () => {
   const revealed = passwordInput.type === "text";
   passwordInput.type = revealed ? "password" : "text";
   toggleButton.setAttribute("aria-pressed", String(!revealed));
-  toggleButton.setAttribute("aria-label", revealed ? "Show password" : "Hide password");
+  toggleButton.setAttribute(
+    "aria-label",
+    revealed ? "Show password" : "Hide password"
+  );
   toggleButton.innerHTML = `<i data-lucide="${revealed ? "eye" : "eye-off"}"></i>`;
   if (window.lucide) {
     window.lucide.createIcons();

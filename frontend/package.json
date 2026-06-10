@@ -8,12 +8,19 @@
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --ext .js,.jsx --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\""
   },
   "devDependencies": {
-    "vite": "^5.4.19",
-    "vitest": "^1.6.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "jsdom": "24.1.0",
-    "@vitest/coverage-v8": "^1.6.0"
+    "prettier": "^3.2.5",
+    "vite": "^5.4.19",
+    "vitest": "^1.6.0"
   }
 }

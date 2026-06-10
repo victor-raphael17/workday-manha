@@ -110,7 +110,7 @@ export function openForm({ title, fields, submitLabel = "Save" }) {
 
     const getFocusable = () =>
       Array.from(overlay.querySelectorAll(FOCUSABLE)).filter(
-        (el) => getComputedStyle(el).display !== "none",
+        (el) => getComputedStyle(el).display !== "none"
       );
 
     const onKey = (e) => {
