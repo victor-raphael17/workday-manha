@@ -8,6 +8,15 @@ const ROLE_LABELS = {
   admin: "Administrator",
 };
 
+function esc(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function renderShell(pageId) {
   const sidebar = document.getElementById("appSidebar");
   const topbar = document.getElementById("appTopbar");
@@ -35,24 +44,24 @@ export function renderShell(pageId) {
 
   sidebar.innerHTML = `
     <div class="sidebar-brand">
-      <img src="${logoMark}" alt="CA Pharmacy">
+      <img src="${esc(logoMark)}" alt="CA Pharmacy">
       <div class="sidebar-brand-title">CA <span>Pharmacy</span></div>
     </div>
     <nav class="sidebar-nav" aria-label="Primary navigation">
       ${navigation.map((item) => `
-          <a class="sidebar-link ${pageId === item.id ? "active" : ""}" href="${item.href}" ${pageId === item.id ? 'aria-current="page"' : ""}>
-            <i data-lucide="${item.icon}"></i>
-            <span>${item.label}</span>
-            <span class="sidebar-link-count d-none" data-nav-count="${item.id}"></span>
+          <a class="sidebar-link ${pageId === item.id ? "active" : ""}" href="${esc(item.href)}" ${pageId === item.id ? 'aria-current="page"' : ""}>
+            <i data-lucide="${esc(item.icon)}"></i>
+            <span>${esc(item.label)}</span>
+            <span class="sidebar-link-count d-none" data-nav-count="${esc(item.id)}"></span>
           </a>
         `).join("")}
     </nav>
     <div class="sidebar-section-label">Current shift</div>
     <div class="sidebar-shift-card d-flex align-items-center gap-3">
-      <span class="shift-avatar">${initials}</span>
+      <span class="shift-avatar">${esc(initials)}</span>
       <div>
-        <div class="sidebar-shift-name">${displayName}</div>
-        <div class="sidebar-shift-role">${displayRole} · ${branch.name}</div>
+        <div class="sidebar-shift-name">${esc(displayName)}</div>
+        <div class="sidebar-shift-role">${esc(displayRole)} · ${esc(branch.name)}</div>
       </div>
     </div>
   `;
@@ -69,7 +78,7 @@ export function renderShell(pageId) {
     <div class="topbar-actions">
       <div class="topbar-branch">
         <i data-lucide="store"></i>
-        <span>${branch.name}</span>
+        <span>${esc(branch.name)}</span>
       </div>
       <button class="topbar-icon" id="logoutButton" type="button" aria-label="Sign out">
         <i data-lucide="log-out"></i>

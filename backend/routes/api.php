@@ -18,6 +18,7 @@ use App\Controllers\PatientController;
 use App\Controllers\PrescriptionController;
 use App\Controllers\PurchaseOrderController;
 use App\Controllers\SaleController;
+use App\Controllers\StockMovementController;
 use App\Controllers\SupplierController;
 use App\Core\Router;
 
@@ -44,6 +45,9 @@ return static function (Router $r): void {
         $r->patch('/api/medications/{id}', [MedicationController::class, 'update']);
         $r->post('/api/medications/{id}/stock', [MedicationController::class, 'adjustStock']);
         $r->delete('/api/medications/{id}', [MedicationController::class, 'destroy']);
+
+        // Stock movements
+        $r->get('/api/stock-movements', [StockMovementController::class, 'index']);
 
         // Patients
         $r->get('/api/patients', [PatientController::class, 'index']);
@@ -74,4 +78,5 @@ return static function (Router $r): void {
         $r->patch('/api/purchase-orders/{id}/state', [PurchaseOrderController::class, 'transition']);
     }); 
 
+    });
 };
