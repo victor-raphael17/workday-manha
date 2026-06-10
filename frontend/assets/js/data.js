@@ -2,9 +2,9 @@
 // the API (see api.js); only the shell's navigation and branch identity live here.
 
 export const branch = {
-  name: "Riverside branch",
-  shiftLead: "Jade Okafor",
-  role: "Pharmacist",
+  name: import.meta.env.VITE_BRANCH_NAME,
+  shiftLead: import.meta.env.VITE_BRANCH_SHIFT_LEAD,
+  role: import.meta.env.VITE_BRANCH_ROLE,
 };
 
 export const navigation = [
