@@ -11,12 +11,12 @@
 ### FRONTEND
 - [ ] Escapar dados da API ante de injetar via `innerHTML` (XSS) (Paulo Eduardo)
 - [x] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144` (Murilo)
-- [ ] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165` (Matheus)
+- [x] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165` (Matheus)
 - [ ] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36` (Jeff)
 - [x] **Ligar ou remover os botões decorativos da topbar** — `frontend/assets/js/shell.js:74` (Matheus)
 - [ ] **Loading state e prevenção de duplo-submit nos forms** — (Jeff)
 - [x] **Focus trap nos modais** — `frontend/assets/js/ui.js:46` (Murilo)
-- [ ] **Externalizar a identidade da filial** — `frontend/assets/js/data.js` (Paulo Eduardo)
+- [x] **Externalizar a identidade da filial** — `frontend/assets/js/data.js` (Paulo Eduardo)
 - [x] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json` (Murilo)
 
 ### BACKEND
