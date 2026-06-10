@@ -30,6 +30,7 @@ return static function (Router $r): void {
 
     // Protegidas — exige token válido em todas abaixo
     $r->middleware('auth', function (Router $r): void {
+
         // Dashboard
         $r->get('/api/dashboard', [DashboardController::class, 'summary']);
 
@@ -75,5 +76,7 @@ return static function (Router $r): void {
         $r->post('/api/purchase-orders', [PurchaseOrderController::class, 'store']);
         $r->get('/api/purchase-orders/{id}', [PurchaseOrderController::class, 'show']);
         $r->patch('/api/purchase-orders/{id}/state', [PurchaseOrderController::class, 'transition']);
+    }); 
+
     });
 };
