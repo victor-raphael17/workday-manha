@@ -76,13 +76,6 @@ return static function (Router $r): void {
         $r->post('/api/purchase-orders', [PurchaseOrderController::class, 'store']);
         $r->get('/api/purchase-orders/{id}', [PurchaseOrderController::class, 'show']);
         $r->patch('/api/purchase-orders/{id}/state', [PurchaseOrderController::class, 'transition']);
-
-        // Sales
-        $r->get('/api/sales', [SaleController::class, 'index']);
-        $r->post('/api/sales', [SaleController::class, 'store']);
-        $r->get('/api/sales/{id}', [SaleController::class, 'show']);
-        $r->post('/api/sales/{id}/void', [SaleController::class, 'void']);
-
     }); 
 
 }; 
