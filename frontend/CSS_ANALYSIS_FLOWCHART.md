@@ -1,4 +1,4 @@
-<!-- 
+<!--
 Visual Flowchart: CSS Cleanup Process
 Salve este arquivo como .md e veja em um preview de Markdown
 ou copie para: https://mermaid.live
@@ -13,34 +13,34 @@ graph TD
     A["🚀 Começar"] --> B["📦 npm install<br/>purgecss + postcss"]
     B --> C["🔍 npm run analyze:css<br/>(dry-run PurgeCSS)"]
     C --> D["📄 Gera:<br/>- purgecss-report.css<br/>- app.css.backup<br/>- estatísticas"]
-    
+
     D --> E{{"Rodar DevTools<br/>Coverage também?"}}
     E -->|Sim| F["🌐 Abrir navegador<br/>http://localhost:4173"]
     F --> G["🎮 F12 → Coverage<br/>⏺️ Record"]
     G --> H["👆 Testar todas as telas:<br/>Login, Dashboard, Inventário,<br/>Pacientes, Fornecedores,<br/>Prescrições, Ordens, PDV"]
     H --> I["⏹️ Stop Recording"]
     I --> J{{"PurgeCSS e DevTools<br/>indicam mesmas<br/>remoções?"}}
-    
+
     J -->|Não| K["⚠️ Investigar diferenças<br/>Revisar safelist"]
     K --> C
-    
+
     J -->|Sim| L{{"Confiante para<br/>remover?"}}
     L -->|Não| M["⏸️ Pausar<br/>Revisar manualmente"]
-    
+
     L -->|Sim| N["✅ Aprovado!<br/>Aplicar mudanças"]
     N --> O["📝 cp purgecss-report.css<br/>assets/css/app.css"]
     O --> P["🔨 docker compose up -d --build"]
     P --> Q["🧪 Testar novamente no navegador"]
-    
+
     Q --> R{{"Tudo<br/>funcionando?"}}
     R -->|Não| S["🔄 Revert:<br/>cp assets/css/app.css.backup<br/>assets/css/app.css"]
     S --> T["❌ Investigar"]
     T --> K
-    
+
     R -->|Sim| U["✨ Sucesso!"]
     U --> V["📝 git commit<br/>refactor: Remove unused CSS"]
     V --> W["🎉 Fim"]
-    
+
     E -->|Não| L
     M --> W
 ```
@@ -49,14 +49,14 @@ graph TD
 
 ## Tabela de Decisão: Quando Proceder?
 
-| Situação | Ação |
-|----------|------|
-| PurgeCSS ✅ + DevTools ✅ (mesmos resultados) | → Proceder com confiança |
-| PurgeCSS ✅ mas DevTools ⚠️ (diferentes) | → Investigar ambos, não proceder |
-| Backup não existe | → NUNCA proceder |
-| Bootstrap classes no report | → Revisar safelist, re-rodar |
-| Testes após aplicação quebram | → Revert com `cp .backup` |
-| Erro no console DevTools | → NUNCA proceder |
+| Situação                                      | Ação                             |
+| --------------------------------------------- | -------------------------------- |
+| PurgeCSS ✅ + DevTools ✅ (mesmos resultados) | → Proceder com confiança         |
+| PurgeCSS ✅ mas DevTools ⚠️ (diferentes)      | → Investigar ambos, não proceder |
+| Backup não existe                             | → NUNCA proceder                 |
+| Bootstrap classes no report                   | → Revisar safelist, re-rodar     |
+| Testes após aplicação quebram                 | → Revert com `cp .backup`        |
+| Erro no console DevTools                      | → NUNCA proceder                 |
 
 ---
 
@@ -241,4 +241,3 @@ R: Tenha sempre `app.css.backup` commitada no git. Revert com `git revert`.
 ---
 
 **Diagrama em SVG/PNG:** Para visualizar melhor, copie o código mermaid para https://mermaid.live
-

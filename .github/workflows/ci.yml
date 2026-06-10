@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # =========================
+      # FRONTEND QUALITY CHECKS
+      # =========================
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: frontend
+
+      - name: Run Prettier check
+        run: npm run format:check
+        working-directory: frontend
+
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # =========================
+      # DOCKER / BACKEND
+      # =========================
+
+      - name: Build and start containers
+        run: docker compose up --build -d
+          
+      - name: Wait for backend to be ready
+        run: |
+          echo "Waiting for the API to initialize in http://localhost:8080/health..."
+          
+          for i in {1..30}; do
+            if response=$(curl -s -f http://localhost:8080/health); then
+              echo "API responded successfully."
+              echo "Response: $response"
+              exit 0
+            fi
+            echo "API not up yet, waiting..."
+            sleep 2
+          done
+
+          echo "Error: API not up, timeout."
+          exit 1
+
+      - name: Run PHPUnit tests
+        run: docker compose exec -T api vendor/bin/phpunit
+
+      - name: Run smoke test
+        run: bash ./tests/smoke.sh
+        working-directory: backend
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Shutdown
+        if: always()
+        run: docker compose down
+      

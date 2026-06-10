@@ -21,21 +21,21 @@ export function toast(message, tone = "info") {
   if (!toastHost) {
     toastHost = document.createElement("div");
     toastHost.className = "toast-host";
-    
+
     // Define o container global como uma região de aria-live persistente.
     // Isso garante que leitores de tela monitorem qualquer inserção de toast aqui dentro.
     toastHost.setAttribute("aria-live", "polite");
     toastHost.setAttribute("aria-atomic", "false");
-    
+
     document.body.appendChild(toastHost);
   }
 
   const el = document.createElement("div");
   el.className = `toast-note toast-${tone}`;
-  
+
   // Adiciona o papel semântico de status para o toast individual.
   el.setAttribute("role", "status");
-  
+
   el.textContent = message;
   toastHost.appendChild(el);
 
@@ -53,7 +53,7 @@ export function statusBadge(stateKey, label) {
 /** Render a centered "empty" / "error" / "loading" placeholder string. */
 export function placeholder(message, tone = "muted") {
   const cls = tone === "error" ? "text-danger" : "text-body-secondary";
-  
+
   // Se for um estado de erro, usamos role="alert" (assertivo) para avisar o usuário imediatamente.
   // Caso contrário (loading, vazio), usamos role="status" (polite).
   const role = tone === "error" ? "alert" : "status";
@@ -135,7 +135,7 @@ export function openForm({ title, fields, submitLabel = "Save" }) {
 
     const getFocusable = () =>
       Array.from(overlay.querySelectorAll(FOCUSABLE)).filter(
-        (el) => getComputedStyle(el).display !== "none",
+        (el) => getComputedStyle(el).display !== "none"
       );
 
     const onKey = (e) => {
@@ -234,9 +234,14 @@ export function renderTableBody(tbody, list, renderRowFn, options = {}) {
  * @param {number} totalPages - O total de páginas.
  * @param {Function} onPageChange - Callback chamado com o número da nova página (soma ou subtrai 1).
  */
-export function renderPagination(container, currentPage, totalPages, onPageChange) {
+export function renderPagination(
+  container,
+  currentPage,
+  totalPages,
+  onPageChange
+) {
   if (!container) return;
-  
+
   container.innerHTML = `
     <i id="btn-previous" class="cursor ${currentPage <= 1 ? "opacity-50 pe-none" : ""}" data-lucide="arrowLeft"></i>
     <span class="mono text-body-secondary" id="pageIndicator">Page ${currentPage} of ${totalPages}</span>

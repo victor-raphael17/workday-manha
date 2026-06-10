@@ -7,7 +7,14 @@ import {
   toneClass,
   mountOfflineBanner,
 } from "./api.js";
-import { openForm, placeholder, statusBadge, toast, renderTableBody, esc } from "./ui.js";
+import {
+  openForm,
+  placeholder,
+  statusBadge,
+  toast,
+  renderTableBody,
+  esc,
+} from "./ui.js";
 
 import { renderPagination } from "./ui.js";
 
@@ -73,12 +80,12 @@ async function bindDashboard() {
   set("sales-count", sales.count);
   set(
     "sales-avg",
-    `avg ${currency.format(sales.count ? sales.total / sales.count : 0)} / sale`,
+    `avg ${currency.format(sales.count ? sales.total / sales.count : 0)} / sale`
   );
   set("queue", summary.dispensing_queue.open);
   set(
     "queue-sub",
-    `${summary.dispensing_queue.verifying} awaiting verification`,
+    `${summary.dispensing_queue.verifying} awaiting verification`
   );
   set("low-stock", summary.alerts.low_stock);
 
@@ -94,12 +101,12 @@ async function bindDashboard() {
     }
     chart.innerHTML = week.length
       ? week
-          .map((d, i) => {
+          .map((d) => {
             const height = Math.max(6, Math.round((d.total / max) * 100));
             const peak = d.total === max && total > 0 ? "sales-bar-peak" : "";
             const label = new Date(`${d.date}T00:00:00`).toLocaleDateString(
               "en-US",
-              { weekday: "short" },
+              { weekday: "short" }
             );
             return `<div class="sales-bar-col"><div class="sales-bar ${peak}" style="height:${height}%" title="${currency.format(d.total)}"></div><span class="mono">${esc(label)}</span></div>`;
           })
@@ -149,21 +156,24 @@ async function bindDashboard() {
     try {
       const result = await api.prescriptions();
       const scripts = result.data.filter((rx) =>
-        ["new", "verifying", "ready"].includes(rx.state),
+        ["new", "verifying", "ready"].includes(rx.state)
       );
-      
-      renderTableBody(queueBody, scripts.slice(0, 6), (rx) => {
-        const flag = rx.flag
-          ? statusBadge(
-              rx.flag === "controlled" ? "controlled" : "out",
-              rx.flag[0].toUpperCase() + rx.flag.slice(1),
-            )
-          : `<span class="text-body-secondary small">None</span>`;
-        const stateLabel = rx.state[0].toUpperCase() + rx.state.slice(1);
-        const avatarMod = rx.medication.controlled
-          ? "table-avatar-controlled"
-          : "";
-        return `
+
+      renderTableBody(
+        queueBody,
+        scripts.slice(0, 6),
+        (rx) => {
+          const flag = rx.flag
+            ? statusBadge(
+                rx.flag === "controlled" ? "controlled" : "out",
+                rx.flag[0].toUpperCase() + rx.flag.slice(1)
+              )
+            : `<span class="text-body-secondary small">None</span>`;
+          const stateLabel = rx.state[0].toUpperCase() + rx.state.slice(1);
+          const avatarMod = rx.medication.controlled
+            ? "table-avatar-controlled"
+            : "";
+          return `
           <tr>
             <td>
               <div class="d-flex align-items-center gap-3">
@@ -179,7 +189,9 @@ async function bindDashboard() {
             <td>${flag}</td>
             <td>${statusBadge(rx.state, stateLabel)}</td>
           </tr>`;
-      }, { placeholderMessage: "The dispensing queue is clear." });
+        },
+        { placeholderMessage: "The dispensing queue is clear." }
+      );
     } catch (error) {
       renderTableBody(queueBody, [], null, { error: reportError(error) });
     }
@@ -283,20 +295,23 @@ async function bindInventory() {
 
   const render = () => {
     const visible = medications.filter(
-      (m) => matchesFilter(m) && matchesSearch(m),
+      (m) => matchesFilter(m) && matchesSearch(m)
     );
     if (!visible.some((m) => m.id === selectedId)) {
       selectedId = visible.length ? visible[0].id : null;
     }
 
-    renderTableBody(tbody, visible, (m) => {
-      const badge = badgeFor(m);
-      const active = m.id === selectedId ? "table-active" : "";
-      const expiryClass =
-        m.status === "expiring" || m.status === "expired"
-          ? "text-warning-emphasis"
-          : "text-body-secondary";
-      return `
+    renderTableBody(
+      tbody,
+      visible,
+      (m) => {
+        const badge = badgeFor(m);
+        const active = m.id === selectedId ? "table-active" : "";
+        const expiryClass =
+          m.status === "expiring" || m.status === "expired"
+            ? "text-warning-emphasis"
+            : "text-body-secondary";
+        return `
         <tr data-inventory-row data-id="${m.id}" class="${active}" role="button" tabindex="0">
           <td><div class="fw-semibold">${esc(m.name)}</div><div class="small text-body-secondary">${[esc(m.strength), esc(m.form)].filter(Boolean).join(" · ")}</div></td>
           <td class="mono text-body-secondary">${esc(m.sku)}</td>
@@ -306,7 +321,9 @@ async function bindInventory() {
           <td>${statusBadge(badge.tone, badge.label)}</td>
           <td class="text-end mono">${currency.format(m.price)}</td>
         </tr>`;
-    }, { placeholderMessage: "No medications match your filters." });
+      },
+      { placeholderMessage: "No medications match your filters." }
+    );
 
     tbody.querySelectorAll("[data-inventory-row]").forEach((row) => {
       const select = () => {
@@ -330,12 +347,20 @@ async function bindInventory() {
   };
 
   const load = async () => {
-    renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading inventory…" });
+    renderTableBody(tbody, [], null, {
+      loading: true,
+      placeholderMessage: "Loading inventory…",
+    });
     try {
       const term = (search?.value || "").trim();
       const filterParam = activeFilter === "all" ? undefined : activeFilter;
-      const result = await api.medications({ page: currentPage, per_page: 7, search: term, filter: filterParam });
-      
+      const result = await api.medications({
+        page: currentPage,
+        per_page: 7,
+        search: term,
+        filter: filterParam,
+      });
+
       if (result && result.data) {
         medications = result.data;
         currentPage = Number(result.page) || currentPage;
@@ -351,10 +376,15 @@ async function bindInventory() {
     }
 
     const paginationContainer = document.querySelector(".page-controls");
-    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
-      currentPage = newPage;
-      load();
-    });
+    renderPagination(
+      paginationContainer,
+      currentPage,
+      totalPages,
+      (newPage) => {
+        currentPage = newPage;
+        load();
+      }
+    );
   };
 
   chips.forEach((chip) => {
@@ -492,7 +522,7 @@ async function bindPos() {
   const taxEl = document.querySelector("[data-pos='tax']");
   const totalEl = document.querySelector("[data-pos='total']");
   const controlledEl = document.querySelector(
-    "[data-pos='controlled-warning']",
+    "[data-pos='controlled-warning']"
   );
   const clearButton = document.querySelector("[data-cart-clear]");
   const payButton = document.querySelector("[data-take-payment]");
@@ -586,7 +616,7 @@ async function bindPos() {
     totalEl.textContent = currency.format(subtotal + tax);
     controlledEl?.classList.toggle(
       "d-none",
-      !cart.some((item) => item.controlled && item.qty > 0),
+      !cart.some((item) => item.controlled && item.qty > 0)
     );
     if (payButton) {
       payButton.disabled = cart.length === 0;
@@ -658,8 +688,7 @@ async function bindPos() {
       return;
     }
     const match = products.find(
-      (p) =>
-        p.sku.toLowerCase() === term || p.name.toLowerCase().includes(term),
+      (p) => p.sku.toLowerCase() === term || p.name.toLowerCase().includes(term)
     );
     if (match) {
       addToCart(match.id);
@@ -698,7 +727,7 @@ async function bindPos() {
       });
       toast(
         `Sale ${sale.code} completed — ${currency.format(sale.total)}.`,
-        "success",
+        "success"
       );
       cart.length = 0;
       const result = await api.medications();
@@ -760,7 +789,7 @@ async function bindPrescriptions() {
     const flagBadge = rx.flag
       ? statusBadge(
           rx.flag === "controlled" ? "controlled" : "out",
-          rx.flag[0].toUpperCase() + rx.flag.slice(1),
+          rx.flag[0].toUpperCase() + rx.flag.slice(1)
         )
       : "";
     const next = RX_ADVANCE[rx.state];
@@ -812,15 +841,15 @@ async function bindPrescriptions() {
       .querySelectorAll("[data-advance]")
       .forEach((btn) =>
         btn.addEventListener("click", () =>
-          transition(Number(btn.dataset.advance), btn.dataset.next),
-        ),
+          transition(Number(btn.dataset.advance), btn.dataset.next)
+        )
       );
     board
       .querySelectorAll("[data-void]")
       .forEach((btn) =>
         btn.addEventListener("click", () =>
-          transition(Number(btn.dataset.void), "voided"),
-        ),
+          transition(Number(btn.dataset.void), "voided")
+        )
       );
     refreshIcons();
   };
@@ -929,7 +958,6 @@ async function bindPatients() {
   let selectedId = null;
   let currentPage = 1;
   let totalPages = 1;
-  
 
   const renderDetail = async (id) => {
     if (!id || !fields.name) {
@@ -944,7 +972,7 @@ async function bindPatients() {
       fields.active.textContent = p.active_prescriptions;
       renderChips(fields.allergies, p.allergies, "None recorded");
       const meds = (p.prescriptions || []).map((rx) =>
-        `${rx.medication_name} ${rx.medication_strength || ""}`.trim(),
+        `${rx.medication_name} ${rx.medication_strength || ""}`.trim()
       );
       renderChips(fields.medications, meds, "No medications");
     } catch (error) {
@@ -981,15 +1009,18 @@ async function bindPatients() {
     const visible = patients.filter(
       (p) =>
         !term ||
-        `${p.name} ${p.code} ${p.plan || ""}`.toLowerCase().includes(term),
+        `${p.name} ${p.code} ${p.plan || ""}`.toLowerCase().includes(term)
     );
     if (!visible.some((p) => p.id === selectedId)) {
       selectedId = visible.length ? visible[0].id : null;
     }
 
-    renderTableBody(tbody, visible, (p) => {
-      const active = p.id === selectedId ? "table-active" : "";
-      return `
+    renderTableBody(
+      tbody,
+      visible,
+      (p) => {
+        const active = p.id === selectedId ? "table-active" : "";
+        return `
         <tr data-patient-row data-id="${p.id}" class="${active}" role="button" tabindex="0">
           <td><div class="fw-semibold">${esc(p.name)}</div></td>
           <td class="mono text-body-secondary">${esc(p.code)}</td>
@@ -998,7 +1029,9 @@ async function bindPatients() {
           <td class="text-end mono">${p.active ?? "—"}</td>
           <td class="mono text-body-secondary">${formatDate(p.last_visit)}</td>
         </tr>`;
-    }, { placeholderMessage: "No patients match your search." });
+      },
+      { placeholderMessage: "No patients match your search." }
+    );
 
     tbody.querySelectorAll("[data-patient-row]").forEach((row) => {
       const select = () => {
@@ -1021,11 +1054,18 @@ async function bindPatients() {
   };
 
   const load = async () => {
-    renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading patients…" });
+    renderTableBody(tbody, [], null, {
+      loading: true,
+      placeholderMessage: "Loading patients…",
+    });
     try {
       const term = (search?.value || "").trim();
-      const result = await api.patients({ page: currentPage, per_page: 10, search: term });
-      
+      const result = await api.patients({
+        page: currentPage,
+        per_page: 10,
+        search: term,
+      });
+
       if (result && result.data) {
         patients = result.data;
         currentPage = Number(result.page) || currentPage;
@@ -1040,10 +1080,15 @@ async function bindPatients() {
     }
 
     const paginationContainer = document.querySelector(".page-controls");
-    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
-      currentPage = newPage; 
-      load(); 
-    });
+    renderPagination(
+      paginationContainer,
+      currentPage,
+      totalPages,
+      (newPage) => {
+        currentPage = newPage;
+        load();
+      }
+    );
   };
 
   search?.addEventListener("input", () => {
@@ -1151,7 +1196,7 @@ async function bindOrders() {
         state === "received"
           ? "Stock received and added to inventory."
           : `Order moved to ${state}.`,
-        "success",
+        "success"
       );
       await load();
     } catch (error) {
@@ -1180,7 +1225,7 @@ async function bindOrders() {
             <div class="detail-row">
               <span class="detail-row-label">${esc(item.medication_name)}</span>
               <span class="detail-row-value mono">${item.units} × ${currency.format(item.unit_cost)}</span>
-            </div>`,
+            </div>`
           )
           .join("") || placeholder("No line items.");
 
@@ -1205,7 +1250,7 @@ async function bindOrders() {
         fields.actions
           .querySelector("[data-order-cancel]")
           ?.addEventListener("click", (e) =>
-            transition(Number(e.currentTarget.dataset.id), "cancelled"),
+            transition(Number(e.currentTarget.dataset.id), "cancelled")
           );
       }
     } catch (error) {
@@ -1218,9 +1263,12 @@ async function bindOrders() {
       selectedId = orders.length ? orders[0].id : null;
     }
 
-    renderTableBody(tbody, orders, (o) => {
-      const active = o.id === selectedId ? "table-active" : "";
-      return `
+    renderTableBody(
+      tbody,
+      orders,
+      (o) => {
+        const active = o.id === selectedId ? "table-active" : "";
+        return `
         <tr data-order-row data-id="${o.id}" class="${active}" role="button" tabindex="0">
           <td class="mono fw-semibold">${esc(o.code)}</td>
           <td>${esc(o.supplier.name)}</td>
@@ -1230,7 +1278,9 @@ async function bindOrders() {
           <td>${statusBadge(o.state, PO_STATE_LABEL[o.state] || o.state)}</td>
           <td class="text-end mono">${currency.format(o.total_cost)}</td>
         </tr>`;
-    }, { placeholderMessage: "No purchase orders yet." });
+      },
+      { placeholderMessage: "No purchase orders yet." }
+    );
 
     tbody.querySelectorAll("[data-order-row]").forEach((row) => {
       const select = () => {
@@ -1268,10 +1318,16 @@ async function bindOrders() {
   };
 
   const load = async () => {
-    renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading orders…" });
+    renderTableBody(tbody, [], null, {
+      loading: true,
+      placeholderMessage: "Loading orders…",
+    });
     try {
-      const result = await api.purchaseOrders({ page: currentPage, per_page: 10 });
-      
+      const result = await api.purchaseOrders({
+        page: currentPage,
+        per_page: 10,
+      });
+
       if (result && result.data) {
         orders = result.data;
         currentPage = Number(result.page) || currentPage;
@@ -1285,10 +1341,15 @@ async function bindOrders() {
     }
 
     const paginationContainer = document.querySelector(".page-controls");
-    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
-      currentPage = newPage; 
-      load(); 
-    });
+    renderPagination(
+      paginationContainer,
+      currentPage,
+      totalPages,
+      (newPage) => {
+        currentPage = newPage;
+        load();
+      }
+    );
 
     await loadBanner();
   };
@@ -1382,17 +1443,26 @@ async function bindStockMovements() {
     return;
   }
 
-  renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading stock movements…" });
+  renderTableBody(tbody, [], null, {
+    loading: true,
+    placeholderMessage: "Loading stock movements…",
+  });
 
   try {
     const movements = await api.stockMovements();
 
-    renderTableBody(tbody, movements, (item) => {
-      const formattedDate = new Date(item.created_at).toLocaleString("en-US", {
-        dateStyle: "short",
-        timeStyle: "short",
-      });
-      return `
+    renderTableBody(
+      tbody,
+      movements,
+      (item) => {
+        const formattedDate = new Date(item.created_at).toLocaleString(
+          "en-US",
+          {
+            dateStyle: "short",
+            timeStyle: "short",
+          }
+        );
+        return `
         <tr>
           <td>
             <div class="fw-semibold">${esc(item.medication_name)}</div>
@@ -1406,7 +1476,9 @@ async function bindStockMovements() {
           <td class="mono text-body-secondary">${esc(formattedDate)}</td>
         </tr>
       `;
-    }, { placeholderMessage: "No stock movements recorded yet." });
+      },
+      { placeholderMessage: "No stock movements recorded yet." }
+    );
   } catch (error) {
     renderTableBody(tbody, [], null, { error: reportError(error) });
   }

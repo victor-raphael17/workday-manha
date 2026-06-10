@@ -47,47 +47,44 @@ Cria `frontend/purgecss.config.js`:
 module.exports = {
   content: [
     // HTML pages (onde as classes são usadas)
-    './pages/**/*.html',
-    './index.html',
-    
+    "./pages/**/*.html",
+    "./index.html",
+
     // JavaScript files (templates, dinamicamente renderizados)
-    './assets/js/page-behaviors.js',
-    './assets/js/shell.js',
-    './assets/js/ui.js',
-    
+    "./assets/js/page-behaviors.js",
+    "./assets/js/shell.js",
+    "./assets/js/ui.js",
+
     // Todos os JS (para ter certeza)
-    './assets/js/**/*.js',
+    "./assets/js/**/*.js",
   ],
-  
+
   // Bootstrap 5 safelist (classes que PurgeCSS poderia remover mas não deve)
   safelist: [
     // Bootstrap classes dinamicamente adicionadas
-    /^modal-/,        // modais
-    /^collapse/,      // collapse
-    /^fade/,          // fade animation
-    /^show$/,         // Bootstrap show class
-    /^active$/,       // active states
-    /^disabled$/,     // disabled states
-    /^d-/,            // display utilities
-    /^text-/,         // text utilities
-    /^bg-/,           // background utilities
-    /^border-/,       // border utilities
-    /^btn-/,          // button variants
-    /^alert-/,        // alert variants
-    /^badge-/,        // badge variants
-    /^list-group/,    // list group
-    /^table-/,        // table utilities
+    /^modal-/, // modais
+    /^collapse/, // collapse
+    /^fade/, // fade animation
+    /^show$/, // Bootstrap show class
+    /^active$/, // active states
+    /^disabled$/, // disabled states
+    /^d-/, // display utilities
+    /^text-/, // text utilities
+    /^bg-/, // background utilities
+    /^border-/, // border utilities
+    /^btn-/, // button variants
+    /^alert-/, // alert variants
+    /^badge-/, // badge variants
+    /^list-group/, // list group
+    /^table-/, // table utilities
     // Status classes dinamicamente definidas em shell.js
     /^status-/,
-    /^tone-/,         // tone classes
+    /^tone-/, // tone classes
   ],
-  
-  css: [
-    './assets/css/app.css',
-    './assets/css/theme.css',
-  ],
-  
-  output: './purgecss-report.css', // saída do relatório (dry-run)
+
+  css: ["./assets/css/app.css", "./assets/css/theme.css"],
+
+  output: "./purgecss-report.css", // saída do relatório (dry-run)
 };
 ```
 
@@ -128,26 +125,23 @@ Cria `frontend/scripts/analyze-css-usage.js`:
 
 ```javascript
 // frontend/scripts/analyze-css-usage.js
-const fs = require('fs');
-const path = require('path');
-const purgecss = require('purgecss');
+const fs = require("fs");
+const path = require("path");
+const purgecss = require("purgecss");
 
 async function analyzeCSS() {
-  console.log('🔍 Analisando CSS não utilizado...\n');
+  console.log("🔍 Analisando CSS não utilizado...\n");
 
   const result = await purgecss.default({
     content: [
-      'pages/**/*.html',
-      'index.html',
-      'assets/js/page-behaviors.js',
-      'assets/js/shell.js',
-      'assets/js/ui.js',
-      'assets/js/**/*.js',
+      "pages/**/*.html",
+      "index.html",
+      "assets/js/page-behaviors.js",
+      "assets/js/shell.js",
+      "assets/js/ui.js",
+      "assets/js/**/*.js",
     ],
-    css: [
-      'assets/css/app.css',
-      'assets/css/theme.css',
-    ],
+    css: ["assets/css/app.css", "assets/css/theme.css"],
     safelist: [
       /^modal-/,
       /^collapse/,
@@ -171,31 +165,37 @@ async function analyzeCSS() {
 
   // Salvar relatório
   const reportContent = result[0].css;
-  fs.writeFileSync('purgecss-report.css', reportContent);
+  fs.writeFileSync("purgecss-report.css", reportContent);
 
   // Calcular estatísticas
   const originalSize = fs
-    .readdirSync('assets/css')
-    .filter(f => f.endsWith('.css'))
-    .reduce((sum, f) => sum + fs.readFileSync(path.join('assets/css', f), 'utf8').length, 0);
+    .readdirSync("assets/css")
+    .filter((f) => f.endsWith(".css"))
+    .reduce(
+      (sum, f) =>
+        sum + fs.readFileSync(path.join("assets/css", f), "utf8").length,
+      0
+    );
 
   const reportSize = reportContent.length;
   const removedSize = originalSize - reportSize;
   const removedPercent = ((removedSize / originalSize) * 100).toFixed(1);
 
-  console.log('📊 RELATÓRIO DE ANÁLISE CSS\n');
+  console.log("📊 RELATÓRIO DE ANÁLISE CSS\n");
   console.log(`✓ Arquivos analisados:`);
   console.log(`  • HTML: pages/*.html`);
   console.log(`  • JS: page-behaviors.js, shell.js, ui.js\n`);
-  
+
   console.log(`📈 Estatísticas:`);
   console.log(`  • CSS original: ${originalSize} bytes`);
   console.log(`  • CSS utilizado: ${reportSize} bytes`);
-  console.log(`  • CSS não utilizado: ${removedSize} bytes (${removedPercent}%)\n`);
-  
+  console.log(
+    `  • CSS não utilizado: ${removedSize} bytes (${removedPercent}%)\n`
+  );
+
   console.log(`✅ Relatório salvo em: purgecss-report.css`);
   console.log(`   (Abra no navegador para revisar)\n`);
-  
+
   console.log(`⚠️  PRÓXIMOS PASSOS:`);
   console.log(`   1. Revisar purgecss-report.css`);
   console.log(`   2. Executar DevTools Coverage (método 2)`);
@@ -246,6 +246,7 @@ Cmd+Opt+I (Mac) ou Ctrl+Shift+I (Windows/Linux)
 ### Passo 3: Testar todos os flows
 
 Enquanto Coverage está rodando, clique em **todas as telas e ações**:
+
 - Login de teste: `jade@capharmacy.com` / senha `password123`
 
 - ✅ Fazer login
@@ -259,6 +260,7 @@ Enquanto Coverage está rodando, clique em **todas as telas e ações**:
 - ✅ Modais, tooltips, validações
 
 Roteiro de 10 minutos para sentir o produto:
+
 1. Faça login. Olhe o Dashboard.
 2. Vá em **Inventory**, escolha um remédio, dê entrada de estoque ("Receive"). Veja o número subir.
 3. Vá no **POS**, monte um carrinho com esse remédio, finalize a venda. Volte no Inventory: o número desceu.
@@ -414,14 +416,14 @@ git commit -m "Remove unused CSS rule: .my-old-component"
 
 ## 🚨 Armadilhas Comuns
 
-| Armadilha | Sintoma | Solução |
-|-----------|---------|--------|
-| Classes Bootstrap removidas por erro | Layout desalinha, botões ficam feios | Usar `safelist` no config PurgeCSS |
-| Classes em Bootstrap JS (modais, collapse) | Modais não abrem | Adicionar `modal-*` ao safelist |
-| Classes geradas dinamicamente (`status-${state}`) | Certos status não recebem cor | Usar regex no safelist: `/^status-/` |
-| CSS com @media queries | Layout responsivo quebra | PurgeCSS preserva media queries, testar em todos tamanhos |
-| CSS vendor-prefixed | Animações não funcionam | PurgeCSS preserva prefixos automaticamente |
-| Arquivo CSS muito grande (não foi limpo) | Análise toma muito tempo | Aumentar recursão em `content` |
+| Armadilha                                         | Sintoma                              | Solução                                                   |
+| ------------------------------------------------- | ------------------------------------ | --------------------------------------------------------- |
+| Classes Bootstrap removidas por erro              | Layout desalinha, botões ficam feios | Usar `safelist` no config PurgeCSS                        |
+| Classes em Bootstrap JS (modais, collapse)        | Modais não abrem                     | Adicionar `modal-*` ao safelist                           |
+| Classes geradas dinamicamente (`status-${state}`) | Certos status não recebem cor        | Usar regex no safelist: `/^status-/`                      |
+| CSS com @media queries                            | Layout responsivo quebra             | PurgeCSS preserva media queries, testar em todos tamanhos |
+| CSS vendor-prefixed                               | Animações não funcionam              | PurgeCSS preserva prefixos automaticamente                |
+| Arquivo CSS muito grande (não foi limpo)          | Análise toma muito tempo             | Aumentar recursão em `content`                            |
 
 ---
 
@@ -472,4 +474,3 @@ npm run analyze:css
 # Apenas depois:
 # cp purgecss-report.css assets/css/app.css (e testar)
 ```
-

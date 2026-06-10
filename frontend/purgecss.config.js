@@ -1,16 +1,16 @@
 module.exports = {
   content: [
     // HTML pages (onde as classes CSS são usadas)
-    './pages/**/*.html',
-    './index.html',
+    "./pages/**/*.html",
+    "./index.html",
 
     // JavaScript files com templates e renderização dinâmica
-    './assets/js/page-behaviors.js',
-    './assets/js/shell.js',
-    './assets/js/ui.js',
+    "./assets/js/page-behaviors.js",
+    "./assets/js/shell.js",
+    "./assets/js/ui.js",
 
     // Todos os outros JS também (para capturar geração dinâmica)
-    './assets/js/**/*.js',
+    "./assets/js/**/*.js",
   ],
 
   // Bootstrap 5 + classes dinamicamente geradas que PurgeCSS não deveria remover
@@ -43,6 +43,5 @@ module.exports = {
     /^has-/,
   ],
 
-  css: ['./assets/css/app.css', './assets/css/theme.css'],
-
+  css: ["./assets/css/app.css", "./assets/css/theme.css"],
 };
