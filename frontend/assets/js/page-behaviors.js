@@ -347,9 +347,11 @@ async function bindInventory() {
       await load();
     } catch (error) {
       reportError(error);
-      addButton.disabled = false;
-      addButton.textContent = "Create Medication";
     }
+    finally {      
+      addButton.disabled = false;
+    }
+    
   });
 
   receiveChip?.addEventListener("click", async () => {
@@ -374,7 +376,6 @@ async function bindInventory() {
     }
 
     receiveChip.disabled = true;
-    receiveChip.textContent = "Applying…";
 
     try {
       await api.adjustStock(m.id, delta, values.reason || null);
@@ -579,11 +580,10 @@ async function bindPos() {
 
   payButton?.addEventListener("click", async () => {
     event.preventDefault();
+    payButton.disabled = true;
     if (!cart.length) {
       return;
     }
-    payButton.disabled = true;
-    payButton.textContent = "Processing…";
 
     try {
       const sale = await api.createSale({
@@ -597,7 +597,10 @@ async function bindPos() {
       render();
     } catch (error) {
       reportError(error);
-      payButton.disabled = false;
+    }
+
+    finally {
+      payButton.disabled = true;
     }
   });
 
@@ -1085,8 +1088,13 @@ async function bindOrders() {
       await load();
     } catch (error) {
       reportError(error);
+      
+    }
+    
+    finally {
       addButton.disabled = false;
     }
+
   });
 
   await load();
