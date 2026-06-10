@@ -55,6 +55,27 @@ export const auth = {
     return this.session?.user || null;
   },
 
+  isTokenExpired() {
+    const token = this.token;
+    if (!token) return true;
+
+    try {
+      const parts = token.split(".");
+
+        
+        if (parts.length !== 3) {
+            console.log("Token não é JWT, ignorando verificação");
+            return false; 
+        }
+
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const now = Math.floor(Date.now() / 1000);
+      return payload.exp - 60 < now;
+    } catch {
+      return true;
+    }
+  },
+
   save(session, remember = true) {
     this.clear();
     const store = remember ? window.localStorage : window.sessionStorage;
@@ -74,6 +95,12 @@ export const auth = {
 
 async function request(path, { method = "GET", body, query } = {}) {
   let url = `${API_BASE}${path}`;
+
+  if (path !== "/api/auth/login" && auth.isTokenExpired()) {
+    auth.clear();
+    auth.redirectToLogin();
+    return;
+  }
 
   if (query) {
     const params = new URLSearchParams();

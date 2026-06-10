@@ -328,6 +328,7 @@ async function bindInventory() {
       ],
     });
     if (!values) {
+      addButton.disabled = false;
       return;
     }
     try {
@@ -701,7 +702,6 @@ async function bindPrescriptions() {
   addButton?.addEventListener("click", async () => {
     event.preventDefault(); 
     addButton.disabled = true;
-    addButton.textContent = "Loading…";
     let patients;
     let medications;
     try {
@@ -722,6 +722,7 @@ async function bindPrescriptions() {
       ],
     });
     if (!values) {
+      addButton.disabled = false;
       return;
     }
     try {
@@ -877,6 +878,7 @@ async function bindPatients() {
       ],
     });
     if (!values) {
+      addButton.disabled = false;
       return;
     }
     try {
