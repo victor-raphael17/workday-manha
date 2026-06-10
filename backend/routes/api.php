@@ -46,16 +46,19 @@ return static function (Router $r): void {
         $r->post('/api/medications/{id}/stock', [MedicationController::class, 'adjustStock']);
         $r->delete('/api/medications/{id}', [MedicationController::class, 'destroy']);
 
-        // Stock movements
-        $r->get('/api/stock-movements', [StockMovementController::class, 'index']);
+    // Medications / inventory ----------------------------------------------
+    $r->get('/api/medications', [MedicationController::class, 'index']);
+    $r->get('/api/medications/categories', [MedicationController::class, 'categories']);
+    $r->get('/api/medications/low-stock', [MedicationController::class, 'lowStock']);
+    $r->get('/api/medications/expiring', [MedicationController::class, 'expiring']);
+    $r->post('/api/medications', [MedicationController::class, 'store']);
+    $r->get('/api/medications/{id}', [MedicationController::class, 'show']);
+    $r->post('/api/medications/{id}/stock', [MedicationController::class, 'adjustStock']);
 
-        // Patients
-        $r->get('/api/patients', [PatientController::class, 'index']);
-        $r->post('/api/patients', [PatientController::class, 'store']);
-        $r->get('/api/patients/{id}', [PatientController::class, 'show']);
-        $r->put('/api/patients/{id}', [PatientController::class, 'update']);
-        $r->patch('/api/patients/{id}', [PatientController::class, 'update']);
-        $r->delete('/api/patients/{id}', [PatientController::class, 'destroy']);
+    // Patients --------------------------------------------------------------
+    $r->get('/api/patients', [PatientController::class, 'index']);
+    $r->post('/api/patients', [PatientController::class, 'store']);
+    $r->get('/api/patients/{id}', [PatientController::class, 'show']);
 
         // Suppliers
         $r->get('/api/suppliers', [SupplierController::class, 'index']);
