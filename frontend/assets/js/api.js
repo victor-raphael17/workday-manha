@@ -181,7 +181,6 @@ export const api = {
 
   sales: (query) => request("/api/sales", { query }),
   createSale: (body) => request("/api/sales", { method: "POST", body }),
-  voidSale: (id) => request(`/api/sales/${id}/void`, { method: "POST" }),
 };
 
 // ---------------------------------------------------------------------------

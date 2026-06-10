@@ -45,7 +45,7 @@ Itens transversais (frontend + backend) e de processo.
   Sem call site (`api.medication(` não aparece; os `rx.medication.*` são acesso a dado, não à
   função). Evidência: `grep -rn "api\.medication(" assets/js pages` → nada.
 
-- [ ] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144`
+- [x] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144`
   Sem call site. Evidência: `grep -rn "\.categories(" assets/js pages` → só a definição.
 
 - [ ] Remover wrapper `api.sales` — `frontend/assets/js/api.js:163`
@@ -92,7 +92,7 @@ Itens transversais (frontend + backend) e de processo.
   Em falha de rede o cliente lança `ApiError(0)` e a tela mostra o erro, mas sem opção de tentar
   de novo. Adicionar retry/botão "tentar novamente" e um indicador global de "API indisponível".
 
-- [ ] **Focus trap nos modais** — `frontend/assets/js/ui.js:46`
+- [x] **Focus trap nos modais** — `frontend/assets/js/ui.js:46`
   `openForm()` já trata Escape, clique fora e foca o primeiro campo, mas o Tab pode sair do modal
   (sem focus trap). Prender o foco dentro do `.modal-card` enquanto aberto.
 
@@ -110,7 +110,7 @@ Itens transversais (frontend + backend) e de processo.
   inventory/patients/orders/sales. Extrair um helper único de render (linhas + estados
   loading/empty/error). Bom momento para centralizar o `escapeHtml()` do item crítico de XSS.
 
-- [ ] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json`
+- [x] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json`
   Sem test runner e sem arquivos `*.test.js`/`*.spec.js`. Adicionar Vitest + jsdom e cobrir os
   helpers de `api.js` (`formatDate`, `initials`, `toneClass`, parsing do envelope/erro).
 
@@ -123,7 +123,7 @@ Itens transversais (frontend + backend) e de processo.
 
 ### 🔴 Crítico
 
-- [ ] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`,
+- [x] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`,
   `backend/src/Core/Router.php`
   Hoje só `AuthController::me/logout` chamam `AuthService::authenticate()`; os demais endpoints
   (`/api/medications`, `/api/patients`, `/api/suppliers`, `/api/sales`, `/api/prescriptions`,
@@ -172,7 +172,7 @@ Itens transversais (frontend + backend) e de processo.
   Apenas `GET /api/suppliers` é usado; o restante não tem wrapper nem tela. Construir gestão de
   fornecedores ou adiar.
 
-- [ ] `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php`
+- [x] `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php`
   Sem consumidor. Feature natural: histórico de vendas + estorno na tela de POS.
 
 ### ✨ Melhorias
