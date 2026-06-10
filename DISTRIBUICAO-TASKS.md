@@ -17,7 +17,7 @@
 - [ ] **Loading state e prevenção de duplo-submit nos forms** — (Jeff)
 - [x] **Focus trap nos modais** — `frontend/assets/js/ui.js:46` (Murilo)
 - [ ] **Externalizar a identidade da filial** — `frontend/assets/js/data.js` (Paulo Eduardo)
-- [ ] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json`
+- [ ] **Adicionar testes ao frontend (Vitest)** — `frontend/package.json` (Murilo)
 
 ### BACKEND
 - [x] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`, (Murilo)
@@ -25,7 +25,7 @@
 - [ ] Endpoints sem consumidor de UI - `GET /api/medications/categories` — `backend/routes/api.php` (Paulo Eduardo)
 - [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/medications/{id}` — `backend/routes/api.php` (Jeff)
 - [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/patients/{id}` — `backend/routes/api.php` (Jeff)
-- [ ] Endpoints sem consumidor de UI - `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php` (Murilo)
+- [x] Endpoints sem consumidor de UI - `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php` (Murilo)
 - [ ] **Paginação nos endpoints de listagem** — `backend/src/Repositories/` (Matheus)
 - [ ] **Suite de testes automatizados** — `backend/tests/` (Matheus)
 
