@@ -2,9 +2,9 @@
 // the API (see api.js); only the shell's navigation and branch identity live here.
 
 export const branch = {
-  name: import.meta.env.VITE_BRANCH_NAME,
-  shiftLead: import.meta.env.VITE_BRANCH_SHIFT_LEAD,
-  role: import.meta.env.VITE_BRANCH_ROLE,
+  name: import.meta.env.VITE_BRANCH_NAME ?? "Unknown Branch",
+  shiftLead: import.meta.env.VITE_BRANCH_SHIFT_LEAD ?? "Unknown",
+  role: import.meta.env.VITE_BRANCH_ROLE ?? "Unknown",
 };
 
 export const navigation = [
