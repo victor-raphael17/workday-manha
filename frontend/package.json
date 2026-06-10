@@ -6,14 +6,20 @@
     "dev": "vite --host 0.0.0.0 --port 4173",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "analyze:css": "node scripts/analyze-css-usage.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
+    "postcss": "^8.5.15",
+    "purgecss": "^5.0.0",
     "vite": "^5.4.19",
     "vitest": "^1.6.0",
     "jsdom": "24.1.0",
     "@vitest/coverage-v8": "^1.6.0"
+  },
+  "dependencies": {
+    "ca-pharmacy-frontend": "file:"
   }
 }
