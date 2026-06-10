@@ -64,7 +64,7 @@ Itens transversais (frontend + backend) e de processo.
 
 ### ✨ Melhorias
 
-- [ ] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36`
+- [x] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36`
   O `auth` guarda `expires_at` mas nunca o verifica; a sessão só é descartada ao receber 401.
   Validar `expires_at` no route guard (`main.js:8`) e redirecionar ao login antes de uma
   requisição falhar. Pode usar `api.me()` para validar o token contra o servidor.
