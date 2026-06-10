@@ -30,9 +30,11 @@ final class MedicationService
      * @param array{search?: string, category?: string, controlled?: bool} $filters
      * @return array<int, array<string, mixed>>
      */
-    public function list(array $filters = []): array
+    public function list(array $filters = [], int $page = 1, int $perPage = 25): array
     {
-        return array_map([$this, 'present'], $this->medications->all($filters));
+        $result = $this->medications->all($filters, $page, $perPage);
+        $result['data'] = array_map([$this, 'present'], $result['data']);
+        return $result;
     }
 
     /**
