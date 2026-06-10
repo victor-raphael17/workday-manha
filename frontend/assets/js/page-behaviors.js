@@ -1,4 +1,11 @@
-import { api, ApiError, currency, formatDate, initials, toneClass } from "./api.js";
+import {
+  api,
+  ApiError,
+  currency,
+  formatDate,
+  initials,
+  toneClass,
+} from "./api.js";
 import { openForm, placeholder, statusBadge, toast } from "./ui.js";
 
 const POS_TAX_RATE = 0.05; // mirrors the API's TAX_RATE for the live cart preview
@@ -32,7 +39,8 @@ function timeAgo(iso) {
 }
 
 function reportError(error) {
-  const message = error instanceof ApiError ? error.message : "Something went wrong.";
+  const message =
+    error instanceof ApiError ? error.message : "Something went wrong.";
   toast(message, "error");
   return message;
 }
@@ -60,9 +68,15 @@ async function bindDashboard() {
   const sales = summary.sales_today;
   set("sales-total", currency.format(sales.total));
   set("sales-count", sales.count);
-  set("sales-avg", `avg ${currency.format(sales.count ? sales.total / sales.count : 0)} / sale`);
+  set(
+    "sales-avg",
+    `avg ${currency.format(sales.count ? sales.total / sales.count : 0)} / sale`,
+  );
   set("queue", summary.dispensing_queue.open);
-  set("queue-sub", `${summary.dispensing_queue.verifying} awaiting verification`);
+  set(
+    "queue-sub",
+    `${summary.dispensing_queue.verifying} awaiting verification`,
+  );
   set("low-stock", summary.alerts.low_stock);
 
   // Weekly sales chart
@@ -80,7 +94,10 @@ async function bindDashboard() {
           .map((d, i) => {
             const height = Math.max(6, Math.round((d.total / max) * 100));
             const peak = d.total === max && total > 0 ? "sales-bar-peak" : "";
-            const label = new Date(`${d.date}T00:00:00`).toLocaleDateString("en-US", { weekday: "short" });
+            const label = new Date(`${d.date}T00:00:00`).toLocaleDateString(
+              "en-US",
+              { weekday: "short" },
+            );
             return `<div class="sales-bar-col"><div class="sales-bar ${peak}" style="height:${height}%" title="${currency.format(d.total)}"></div><span class="mono">${label}</span></div>`;
           })
           .join("")
@@ -99,7 +116,12 @@ async function bindDashboard() {
             const note = m.controlled
               ? `${m.on_hand} on hand. Controlled substance.`
               : `${m.on_hand} on hand. Reorder at ${m.reorder_point}.`;
-            const icon = m.status === "out" ? "package-x" : m.controlled ? "shield-alert" : "pill";
+            const icon =
+              m.status === "out"
+                ? "package-x"
+                : m.controlled
+                  ? "shield-alert"
+                  : "pill";
             const avatarMod = m.controlled ? "status-avatar-controlled" : "";
             return `
               <div class="list-group-item border-0 px-4 py-3">
@@ -122,17 +144,22 @@ async function bindDashboard() {
   if (queueBody) {
     try {
       const scripts = (await api.prescriptions()).filter((rx) =>
-        ["new", "verifying", "ready"].includes(rx.state)
+        ["new", "verifying", "ready"].includes(rx.state),
       );
       queueBody.innerHTML = scripts.length
         ? scripts
             .slice(0, 6)
             .map((rx) => {
               const flag = rx.flag
-                ? statusBadge(rx.flag === "controlled" ? "controlled" : "out", rx.flag[0].toUpperCase() + rx.flag.slice(1))
+                ? statusBadge(
+                    rx.flag === "controlled" ? "controlled" : "out",
+                    rx.flag[0].toUpperCase() + rx.flag.slice(1),
+                  )
                 : `<span class="text-body-secondary small">None</span>`;
               const stateLabel = rx.state[0].toUpperCase() + rx.state.slice(1);
-              const avatarMod = rx.medication.controlled ? "table-avatar-controlled" : "";
+              const avatarMod = rx.medication.controlled
+                ? "table-avatar-controlled"
+                : "";
               return `
                 <tr>
                   <td>
@@ -206,18 +233,26 @@ async function bindInventory() {
     if (!term) {
       return true;
     }
-    return [m.name, m.sku, m.category].filter(Boolean).join(" ").toLowerCase().includes(term);
+    return [m.name, m.sku, m.category]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(term);
   };
 
   const badgeFor = (m) =>
-    m.controlled ? { tone: "controlled", label: "Controlled" } : { tone: m.status, label: m.status_label };
+    m.controlled
+      ? { tone: "controlled", label: "Controlled" }
+      : { tone: m.status, label: m.status_label };
 
   const renderDetail = (m) => {
     if (!m || !detailFields.title) {
       return;
     }
     detailFields.title.textContent = m.name;
-    detailFields.subtitle.textContent = [m.strength, m.form, m.category].filter(Boolean).join(" · ");
+    detailFields.subtitle.textContent = [m.strength, m.form, m.category]
+      .filter(Boolean)
+      .join(" · ");
     detailFields.onHand.textContent = `${m.on_hand} packs`;
     detailFields.reorder.textContent = `${m.reorder_point} packs`;
     detailFields.expiry.textContent = formatDate(m.expiry);
@@ -244,7 +279,9 @@ async function bindInventory() {
   };
 
   const render = () => {
-    const visible = medications.filter((m) => matchesFilter(m) && matchesSearch(m));
+    const visible = medications.filter(
+      (m) => matchesFilter(m) && matchesSearch(m),
+    );
     if (!visible.some((m) => m.id === selectedId)) {
       selectedId = visible.length ? visible[0].id : null;
     }
@@ -254,7 +291,10 @@ async function bindInventory() {
           .map((m) => {
             const badge = badgeFor(m);
             const active = m.id === selectedId ? "table-active" : "";
-            const expiryClass = m.status === "expiring" || m.status === "expired" ? "text-warning-emphasis" : "text-body-secondary";
+            const expiryClass =
+              m.status === "expiring" || m.status === "expired"
+                ? "text-warning-emphasis"
+                : "text-body-secondary";
             return `
               <tr data-inventory-row data-id="${m.id}" class="${active}" role="button" tabindex="0">
                 <td><div class="fw-semibold">${m.name}</div><div class="small text-body-secondary">${[m.strength, m.form].filter(Boolean).join(" · ")}</div></td>
@@ -272,7 +312,9 @@ async function bindInventory() {
     tbody.querySelectorAll("[data-inventory-row]").forEach((row) => {
       const select = () => {
         selectedId = Number(row.dataset.id);
-        tbody.querySelectorAll("[data-inventory-row]").forEach((r) => r.classList.toggle("table-active", r === row));
+        tbody
+          .querySelectorAll("[data-inventory-row]")
+          .forEach((r) => r.classList.toggle("table-active", r === row));
         renderDetail(medications.find((m) => m.id === selectedId));
       };
       row.addEventListener("click", select);
@@ -309,23 +351,42 @@ async function bindInventory() {
   search?.addEventListener("input", render);
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    addButton.disabled = true;
     const values = await openForm({
       title: "Add medication",
       submitLabel: "Create",
       fields: [
-        { name: "sku", label: "SKU", required: true, placeholder: "CA-XXX-000" },
+        {
+          name: "sku",
+          label: "SKU",
+          required: true,
+          placeholder: "CA-XXX-000",
+        },
         { name: "name", label: "Name", required: true },
         { name: "strength", label: "Strength", placeholder: "500 mg" },
         { name: "form", label: "Form", placeholder: "Tablet" },
         { name: "category", label: "Category" },
         { name: "on_hand", label: "On hand", type: "number", value: 0 },
-        { name: "reorder_point", label: "Reorder point", type: "number", value: 0 },
-        { name: "price", label: "Unit price", type: "number", step: "0.01", value: 0 },
+        {
+          name: "reorder_point",
+          label: "Reorder point",
+          type: "number",
+          value: 0,
+        },
+        {
+          name: "price",
+          label: "Unit price",
+          type: "number",
+          step: "0.01",
+          value: 0,
+        },
         { name: "expiry", label: "Expiry", type: "date" },
         { name: "controlled", label: "Controlled substance", type: "checkbox" },
       ],
     });
     if (!values) {
+      addButton.disabled = false;
       return;
     }
     try {
@@ -346,6 +407,10 @@ async function bindInventory() {
     } catch (error) {
       reportError(error);
     }
+    finally {      
+      addButton.disabled = false;
+    }
+    
   });
 
   receiveChip?.addEventListener("click", async () => {
@@ -357,8 +422,19 @@ async function bindInventory() {
       title: `Adjust stock — ${m.name}`,
       submitLabel: "Apply",
       fields: [
-        { name: "delta", label: "Change (use a negative number to remove)", type: "number", required: true, value: 0, help: `Currently ${m.on_hand} on hand.` },
-        { name: "reason", label: "Reason", placeholder: "Goods-in / correction / write-off" },
+        {
+          name: "delta",
+          label: "Change (use a negative number to remove)",
+          type: "number",
+          required: true,
+          value: 0,
+          help: `Currently ${m.on_hand} on hand.`,
+        },
+        {
+          name: "reason",
+          label: "Reason",
+          placeholder: "Goods-in / correction / write-off",
+        },
       ],
     });
     if (!values) {
@@ -368,12 +444,17 @@ async function bindInventory() {
     if (!delta) {
       return;
     }
+
+    receiveChip.disabled = true;
+
     try {
       await api.adjustStock(m.id, delta, values.reason || null);
       toast(`Stock updated for ${m.name}.`, "success");
       await load();
     } catch (error) {
       reportError(error);
+      receiveChip.disabled = false;
+      receiveChip.textContent = "Apply stock change";
     }
   });
 
@@ -391,7 +472,9 @@ async function bindPos() {
   const subtotalEl = document.querySelector("[data-pos='subtotal']");
   const taxEl = document.querySelector("[data-pos='tax']");
   const totalEl = document.querySelector("[data-pos='total']");
-  const controlledEl = document.querySelector("[data-pos='controlled-warning']");
+  const controlledEl = document.querySelector(
+    "[data-pos='controlled-warning']",
+  );
   const clearButton = document.querySelector("[data-cart-clear]");
   const payButton = document.querySelector("[data-take-payment]");
   const methodSelect = document.querySelector("[data-payment-method]");
@@ -405,7 +488,9 @@ async function bindPos() {
   const stockFor = (id) => products.find((p) => p.id === id)?.on_hand ?? 0;
 
   const renderProducts = () => {
-    const sellable = products.filter((p) => p.status !== "expired" && p.status !== "recalled");
+    const sellable = products.filter(
+      (p) => p.status !== "expired" && p.status !== "recalled",
+    );
     grid.innerHTML = sellable.length
       ? sellable
           .map((p) => {
@@ -480,7 +565,10 @@ async function bindPos() {
     subtotalEl.textContent = currency.format(subtotal);
     taxEl.textContent = currency.format(tax);
     totalEl.textContent = currency.format(subtotal + tax);
-    controlledEl?.classList.toggle("d-none", !cart.some((item) => item.controlled && item.qty > 0));
+    controlledEl?.classList.toggle(
+      "d-none",
+      !cart.some((item) => item.controlled && item.qty > 0),
+    );
     if (payButton) {
       payButton.disabled = cart.length === 0;
     }
@@ -530,7 +618,13 @@ async function bindPos() {
       }
       existing.qty += 1;
     } else {
-      cart.push({ id, name: `${product.name} ${product.strength || ""}`.trim(), price: product.price, controlled: product.controlled, qty: 1 });
+      cart.push({
+        id,
+        name: `${product.name} ${product.strength || ""}`.trim(),
+        price: product.price,
+        controlled: product.controlled,
+        qty: 1,
+      });
     }
     render();
   }
@@ -545,7 +639,8 @@ async function bindPos() {
       return;
     }
     const match = products.find(
-      (p) => p.sku.toLowerCase() === term || p.name.toLowerCase().includes(term)
+      (p) =>
+        p.sku.toLowerCase() === term || p.name.toLowerCase().includes(term),
     );
     if (match) {
       addToCart(match.id);
@@ -568,23 +663,34 @@ async function bindPos() {
   });
 
   payButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    payButton.disabled = true;
     if (!cart.length) {
       return;
     }
-    payButton.disabled = true;
+
     try {
       const sale = await api.createSale({
         payment_method: methodSelect?.value || "card",
-        items: cart.map((item) => ({ medication_id: item.id, quantity: item.qty })),
+        items: cart.map((item) => ({
+          medication_id: item.id,
+          quantity: item.qty,
+        })),
       });
-      toast(`Sale ${sale.code} completed — ${currency.format(sale.total)}.`, "success");
+      toast(
+        `Sale ${sale.code} completed — ${currency.format(sale.total)}.`,
+        "success",
+      );
       cart.length = 0;
       products = await api.medications();
       renderProducts();
       render();
     } catch (error) {
       reportError(error);
-      payButton.disabled = false;
+    }
+
+    finally {
+      payButton.disabled = true;
     }
   });
 
@@ -608,7 +714,11 @@ const RX_COLUMNS = [
   { state: "dispensed", label: "Dispensed" },
 ];
 const RX_ADVANCE = { new: "verifying", verifying: "ready", ready: "dispensed" };
-const RX_ADVANCE_LABEL = { new: "Start verify", verifying: "Mark ready", ready: "Dispense" };
+const RX_ADVANCE_LABEL = {
+  new: "Start verify",
+  verifying: "Mark ready",
+  ready: "Dispense",
+};
 
 async function bindPrescriptions() {
   const board = document.querySelector("[data-rx-board]");
@@ -629,15 +739,19 @@ async function bindPrescriptions() {
 
   const card = (rx) => {
     const flagBadge = rx.flag
-      ? statusBadge(rx.flag === "controlled" ? "controlled" : "out", rx.flag[0].toUpperCase() + rx.flag.slice(1))
+      ? statusBadge(
+          rx.flag === "controlled" ? "controlled" : "out",
+          rx.flag[0].toUpperCase() + rx.flag.slice(1),
+        )
       : "";
     const next = RX_ADVANCE[rx.state];
     const advanceBtn = next
       ? `<button class="btn btn-success btn-sm px-3 mt-3" type="button" data-advance="${rx.id}" data-next="${next}">${RX_ADVANCE_LABEL[rx.state]}</button>`
       : "";
-    const voidBtn = rx.state !== "dispensed" && rx.state !== "voided"
-      ? `<button class="btn btn-link btn-sm text-danger text-decoration-none px-0 mt-2" type="button" data-void="${rx.id}">Void</button>`
-      : "";
+    const voidBtn =
+      rx.state !== "dispensed" && rx.state !== "voided"
+        ? `<button class="btn btn-link btn-sm text-danger text-decoration-none px-0 mt-2" type="button" data-void="${rx.id}">Void</button>`
+        : "";
     return `
       <article class="queue-card p-3">
         <div class="d-flex justify-content-between gap-2 mb-2"><span class="queue-card-id">${rx.code}</span><span class="queue-card-id">${timeAgo(rx.created_at)}</span></div>
@@ -660,9 +774,10 @@ async function bindPrescriptions() {
 
     board.innerHTML = RX_COLUMNS.map((col) => {
       const cards = scripts.filter((rx) => rx.state === col.state);
-      const note = col.state === "dispensed"
-        ? `<div class="muted-note">Controlled prescriptions stay visible after dispensing for audit review.</div>`
-        : "";
+      const note =
+        col.state === "dispensed"
+          ? `<div class="muted-note">Controlled prescriptions stay visible after dispensing for audit review.</div>`
+          : "";
       return `
         <div class="col-12 col-xl-3">
           <div class="queue-column">
@@ -673,20 +788,33 @@ async function bindPrescriptions() {
         </div>`;
     }).join("");
 
-    board.querySelectorAll("[data-advance]").forEach((btn) =>
-      btn.addEventListener("click", () => transition(Number(btn.dataset.advance), btn.dataset.next))
-    );
-    board.querySelectorAll("[data-void]").forEach((btn) =>
-      btn.addEventListener("click", () => transition(Number(btn.dataset.void), "voided"))
-    );
+    board
+      .querySelectorAll("[data-advance]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          transition(Number(btn.dataset.advance), btn.dataset.next),
+        ),
+      );
+    board
+      .querySelectorAll("[data-void]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () =>
+          transition(Number(btn.dataset.void), "voided"),
+        ),
+      );
     refreshIcons();
   };
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault(); 
+    addButton.disabled = true;
     let patients;
     let medications;
     try {
-      [patients, medications] = await Promise.all([api.patients(), api.medications()]);
+      [patients, medications] = await Promise.all([
+        api.patients(),
+        api.medications(),
+      ]);
     } catch (error) {
       reportError(error);
       return;
@@ -695,14 +823,44 @@ async function bindPrescriptions() {
       title: "New prescription",
       submitLabel: "Create",
       fields: [
-        { name: "patient_id", label: "Patient", type: "select", required: true, options: patients.map((p) => ({ value: p.id, label: `${p.name} (${p.code})` })) },
-        { name: "medication_id", label: "Medication", type: "select", required: true, options: medications.map((m) => ({ value: m.id, label: `${m.name} ${m.strength || ""}` })) },
-        { name: "quantity", label: "Quantity", type: "number", required: true, value: 1 },
+        {
+          name: "patient_id",
+          label: "Patient",
+          type: "select",
+          required: true,
+          options: patients.map((p) => ({
+            value: p.id,
+            label: `${p.name} (${p.code})`,
+          })),
+        },
+        {
+          name: "medication_id",
+          label: "Medication",
+          type: "select",
+          required: true,
+          options: medications.map((m) => ({
+            value: m.id,
+            label: `${m.name} ${m.strength || ""}`,
+          })),
+        },
+        {
+          name: "quantity",
+          label: "Quantity",
+          type: "number",
+          required: true,
+          value: 1,
+        },
         { name: "unit", label: "Unit", value: "tabs" },
-        { name: "prescriber", label: "Prescriber", required: true, placeholder: "Dr. …" },
+        {
+          name: "prescriber",
+          label: "Prescriber",
+          required: true,
+          placeholder: "Dr. …",
+        },
       ],
     });
     if (!values) {
+      addButton.disabled = false;
       return;
     }
     try {
@@ -717,6 +875,11 @@ async function bindPrescriptions() {
       await load();
     } catch (error) {
       reportError(error);
+      
+    }
+    finally {      
+      addButton.disabled = false;
+      
     }
   });
 
@@ -775,7 +938,9 @@ async function bindPatients() {
       fields.plan.textContent = p.plan || "—";
       fields.active.textContent = p.active_prescriptions;
       renderChips(fields.allergies, p.allergies, "None recorded");
-      const meds = (p.prescriptions || []).map((rx) => `${rx.medication_name} ${rx.medication_strength || ""}`.trim());
+      const meds = (p.prescriptions || []).map((rx) =>
+        `${rx.medication_name} ${rx.medication_strength || ""}`.trim(),
+      );
       renderChips(fields.medications, meds, "No medications");
     } catch (error) {
       reportError(error);
@@ -784,8 +949,10 @@ async function bindPatients() {
 
   const render = () => {
     const term = (search?.value || "").trim().toLowerCase();
-    const visible = patients.filter((p) =>
-      !term || `${p.name} ${p.code} ${p.plan || ""}`.toLowerCase().includes(term)
+    const visible = patients.filter(
+      (p) =>
+        !term ||
+        `${p.name} ${p.code} ${p.plan || ""}`.toLowerCase().includes(term),
     );
     if (!visible.some((p) => p.id === selectedId)) {
       selectedId = visible.length ? visible[0].id : null;
@@ -811,7 +978,9 @@ async function bindPatients() {
     tbody.querySelectorAll("[data-patient-row]").forEach((row) => {
       const select = () => {
         selectedId = Number(row.dataset.id);
-        tbody.querySelectorAll("[data-patient-row]").forEach((r) => r.classList.toggle("table-active", r === row));
+        tbody
+          .querySelectorAll("[data-patient-row]")
+          .forEach((r) => r.classList.toggle("table-active", r === row));
         renderDetail(selectedId);
       };
       row.addEventListener("click", select);
@@ -839,6 +1008,8 @@ async function bindPatients() {
   search?.addEventListener("input", render);
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    addButton.disabled = true;
     const values = await openForm({
       title: "Add patient",
       submitLabel: "Create",
@@ -847,10 +1018,15 @@ async function bindPatients() {
         { name: "dob", label: "Date of birth", type: "date" },
         { name: "phone", label: "Phone" },
         { name: "plan", label: "Insurance plan" },
-        { name: "allergies", label: "Allergies (comma separated)", placeholder: "Penicillin, Aspirin" },
+        {
+          name: "allergies",
+          label: "Allergies (comma separated)",
+          placeholder: "Penicillin, Aspirin",
+        },
       ],
     });
     if (!values) {
+      addButton.disabled = false;
       return;
     }
     try {
@@ -859,12 +1035,20 @@ async function bindPatients() {
         dob: values.dob || null,
         phone: values.phone || null,
         plan: values.plan || null,
-        allergies: values.allergies ? values.allergies.split(",").map((a) => a.trim()).filter(Boolean) : [],
+        allergies: values.allergies
+          ? values.allergies
+              .split(",")
+              .map((a) => a.trim())
+              .filter(Boolean)
+          : [],
       });
       toast(`${values.name} added.`, "success");
       await load();
     } catch (error) {
       reportError(error);
+    }
+    finally {
+      addButton.disabled = false;
     }
   });
 
@@ -875,9 +1059,23 @@ async function bindPatients() {
 // Orders (purchase orders)
 // ---------------------------------------------------------------------------
 
-const PO_ADVANCE = { draft: "submitted", submitted: "transit", transit: "received" };
-const PO_ADVANCE_LABEL = { draft: "Submit", submitted: "Mark in transit", transit: "Receive stock" };
-const PO_STATE_LABEL = { draft: "Draft", submitted: "Submitted", transit: "In transit", received: "Received", cancelled: "Cancelled" };
+const PO_ADVANCE = {
+  draft: "submitted",
+  submitted: "transit",
+  transit: "received",
+};
+const PO_ADVANCE_LABEL = {
+  draft: "Submit",
+  submitted: "Mark in transit",
+  transit: "Receive stock",
+};
+const PO_STATE_LABEL = {
+  draft: "Draft",
+  submitted: "Submitted",
+  transit: "In transit",
+  received: "Received",
+  cancelled: "Cancelled",
+};
 
 async function bindOrders() {
   const tbody = document.querySelector("[data-order-body]");
@@ -904,7 +1102,12 @@ async function bindOrders() {
   const transition = async (id, state) => {
     try {
       await api.transitionPurchaseOrder(id, state);
-      toast(state === "received" ? "Stock received and added to inventory." : `Order moved to ${state}.`, "success");
+      toast(
+        state === "received"
+          ? "Stock received and added to inventory."
+          : `Order moved to ${state}.`,
+        "success",
+      );
       await load();
     } catch (error) {
       reportError(error);
@@ -925,32 +1128,40 @@ async function bindOrders() {
       fields.badge.className = `status-badge ${toneClass(po.state)}`;
       fields.badge.textContent = PO_STATE_LABEL[po.state] || po.state;
 
-      fields.lines.innerHTML = (po.items || [])
-        .map(
-          (item) => `
+      fields.lines.innerHTML =
+        (po.items || [])
+          .map(
+            (item) => `
             <div class="detail-row">
               <span class="detail-row-label">${item.medication_name}</span>
               <span class="detail-row-value mono">${item.units} × ${currency.format(item.unit_cost)}</span>
-            </div>`
-        )
-        .join("") || placeholder("No line items.");
+            </div>`,
+          )
+          .join("") || placeholder("No line items.");
 
       if (fields.actions) {
         const next = PO_ADVANCE[po.state];
         const advanceBtn = next
           ? `<button class="btn btn-success btn-sm px-3" type="button" data-order-advance data-id="${po.id}" data-next="${next}">${PO_ADVANCE_LABEL[po.state]}</button>`
           : "";
-        const cancelBtn = po.state !== "received" && po.state !== "cancelled"
-          ? `<button class="btn btn-outline-secondary btn-sm px-3" type="button" data-order-cancel data-id="${po.id}">Cancel</button>`
-          : "";
-        fields.actions.innerHTML = advanceBtn + cancelBtn || `<span class="muted-note">No actions available.</span>`;
-        fields.actions.querySelector("[data-order-advance]")?.addEventListener("click", (e) => {
-          const t = e.currentTarget;
-          transition(Number(t.dataset.id), t.dataset.next);
-        });
-        fields.actions.querySelector("[data-order-cancel]")?.addEventListener("click", (e) =>
-          transition(Number(e.currentTarget.dataset.id), "cancelled")
-        );
+        const cancelBtn =
+          po.state !== "received" && po.state !== "cancelled"
+            ? `<button class="btn btn-outline-secondary btn-sm px-3" type="button" data-order-cancel data-id="${po.id}">Cancel</button>`
+            : "";
+        fields.actions.innerHTML =
+          advanceBtn + cancelBtn ||
+          `<span class="muted-note">No actions available.</span>`;
+        fields.actions
+          .querySelector("[data-order-advance]")
+          ?.addEventListener("click", (e) => {
+            const t = e.currentTarget;
+            transition(Number(t.dataset.id), t.dataset.next);
+          });
+        fields.actions
+          .querySelector("[data-order-cancel]")
+          ?.addEventListener("click", (e) =>
+            transition(Number(e.currentTarget.dataset.id), "cancelled"),
+          );
       }
     } catch (error) {
       reportError(error);
@@ -983,7 +1194,9 @@ async function bindOrders() {
     tbody.querySelectorAll("[data-order-row]").forEach((row) => {
       const select = () => {
         selectedId = Number(row.dataset.id);
-        tbody.querySelectorAll("[data-order-row]").forEach((r) => r.classList.toggle("table-active", r === row));
+        tbody
+          .querySelectorAll("[data-order-row]")
+          .forEach((r) => r.classList.toggle("table-active", r === row));
         renderDetail(selectedId);
       };
       row.addEventListener("click", select);
@@ -1025,10 +1238,15 @@ async function bindOrders() {
   };
 
   addButton?.addEventListener("click", async () => {
+    event.preventDefault();
+    addButton.disabled = true;
     let suppliers;
     let medications;
     try {
-      [suppliers, medications] = await Promise.all([api.suppliers(), api.medications()]);
+      [suppliers, medications] = await Promise.all([
+        api.suppliers(),
+        api.medications(),
+      ]);
     } catch (error) {
       reportError(error);
       return;
@@ -1037,17 +1255,47 @@ async function bindOrders() {
       title: "Create purchase order",
       submitLabel: "Create",
       fields: [
-        { name: "supplier_id", label: "Supplier", type: "select", required: true, options: suppliers.map((s) => ({ value: s.id, label: s.name })) },
+        {
+          name: "supplier_id",
+          label: "Supplier",
+          type: "select",
+          required: true,
+          options: suppliers.map((s) => ({ value: s.id, label: s.name })),
+        },
         { name: "expected_at", label: "Expected date", type: "date" },
-        { name: "medication_id", label: "Medication", type: "select", required: true, options: medications.map((m) => ({ value: m.id, label: `${m.name} ${m.strength || ""}` })) },
-        { name: "units", label: "Units", type: "number", required: true, value: 1 },
-        { name: "unit_cost", label: "Unit cost", type: "number", step: "0.01", placeholder: "optional" },
+        {
+          name: "medication_id",
+          label: "Medication",
+          type: "select",
+          required: true,
+          options: medications.map((m) => ({
+            value: m.id,
+            label: `${m.name} ${m.strength || ""}`,
+          })),
+        },
+        {
+          name: "units",
+          label: "Units",
+          type: "number",
+          required: true,
+          value: 1,
+        },
+        {
+          name: "unit_cost",
+          label: "Unit cost",
+          type: "number",
+          step: "0.01",
+          placeholder: "optional",
+        },
       ],
     });
     if (!values) {
       return;
     }
-    const item = { medication_id: Number(values.medication_id), units: Number(values.units) };
+    const item = {
+      medication_id: Number(values.medication_id),
+      units: Number(values.units),
+    };
     if (values.unit_cost) {
       item.unit_cost = Number(values.unit_cost);
     }
@@ -1061,10 +1309,58 @@ async function bindOrders() {
       await load();
     } catch (error) {
       reportError(error);
+      
     }
+    
+    finally {
+      addButton.disabled = false;
+    }
+
   });
 
   await load();
+}
+
+async function bindStockMovements() {
+  const tbody = document.querySelector("[data-stock-movements-body]");
+
+  if (!tbody) {
+    return;
+  }
+
+  tbody.innerHTML = `<tr><td colspan="5">${placeholder("Loading stock movements…")}</td></tr>`;
+
+  try {
+    const movements = await api.stockMovements();
+
+    tbody.innerHTML = movements.length
+      ? movements
+          .map(
+            (item) => `
+            <tr>
+              <td>
+                <div class="fw-semibold">${item.medication_name}</div>
+                <div class="small text-body-secondary">Medication #${item.medication_id}</div>
+              </td>
+              <td class="mono text-body-secondary">${item.sku}</td>
+              <td class="text-end mono ${item.delta > 0 ? "text-success" : "text-danger"}">
+                ${item.delta > 0 ? "+" : ""}${item.delta}
+              </td>
+              <td>${item.reason || "—"}</td>
+              <td class="mono text-body-secondary">
+  ${new Date(item.created_at).toLocaleString("en-US", {
+    dateStyle: "short",
+    timeStyle: "short",
+  })}
+</td>
+            </tr>
+          `,
+          )
+          .join("")
+      : `<tr><td colspan="5">${placeholder("No stock movements recorded yet.")}</td></tr>`;
+  } catch (error) {
+    tbody.innerHTML = `<tr><td colspan="5">${placeholder(reportError(error), "error")}</td></tr>`;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1073,6 +1369,7 @@ export function bindPageBehaviors(pageId) {
   const binders = {
     dashboard: bindDashboard,
     inventory: bindInventory,
+    "stock-movements": bindStockMovements,
     pos: bindPos,
     prescriptions: bindPrescriptions,
     patients: bindPatients,

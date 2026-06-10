@@ -33,11 +33,4 @@ final class Env
 
         return in_array(strtolower($value), ['1', 'true', 'yes', 'on'], true);
     }
-
-    public static function int(string $key, int $default = 0): int
-    {
-        $value = self::get($key);
-
-        return $value === null ? $default : (int) $value;
-    }
 }

@@ -51,10 +51,4 @@ final class SessionRepository extends Repository
             ['token_hash' => $tokenHash]
         ) > 0;
     }
-
-    /** Housekeeping: drop expired sessions. */
-    public function purgeExpired(): int
-    {
-        return $this->execute('DELETE FROM sessions WHERE expires_at <= now()');
-    }
 }

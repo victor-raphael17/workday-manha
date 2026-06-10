@@ -8,7 +8,9 @@
  */
 
 const API_BASE = (
-  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE_URL) ||
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_BASE_URL) ||
   (typeof window !== "undefined" && window.__API_BASE__) ||
   "http://localhost:8080"
 ).replace(/\/$/, "");
@@ -36,7 +38,8 @@ const SESSION_KEY = "ca_pharmacy_session";
 export const auth = {
   get session() {
     const raw =
-      window.localStorage.getItem(SESSION_KEY) || window.sessionStorage.getItem(SESSION_KEY);
+      window.localStorage.getItem(SESSION_KEY) ||
+      window.sessionStorage.getItem(SESSION_KEY);
     if (!raw) {
       return null;
     }
@@ -53,6 +56,27 @@ export const auth = {
 
   get user() {
     return this.session?.user || null;
+  },
+
+  isTokenExpired() {
+    const token = this.token;
+    if (!token) return true;
+
+    try {
+      const parts = token.split(".");
+
+        
+        if (parts.length !== 3) {
+            console.log("Token não é JWT, ignorando verificação");
+            return false; 
+        }
+
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const now = Math.floor(Date.now() / 1000);
+      return payload.exp - 60 < now;
+    } catch {
+      return true;
+    }
   },
 
   save(session, remember = true) {
@@ -74,6 +98,12 @@ export const auth = {
 
 async function request(path, { method = "GET", body, query } = {}) {
   let url = `${API_BASE}${path}`;
+
+  if (path !== "/api/auth/login" && auth.isTokenExpired()) {
+    auth.clear();
+    auth.redirectToLogin();
+    return;
+  }
 
   if (query) {
     const params = new URLSearchParams();
@@ -105,7 +135,10 @@ async function request(path, { method = "GET", body, query } = {}) {
       body: body ? JSON.stringify(body) : undefined,
     });
   } catch (networkError) {
-    throw new ApiError(0, `Cannot reach the API at ${API_BASE}. Is it running?`);
+    throw new ApiError(
+      0,
+      `Cannot reach the API at ${API_BASE}. Is it running?`,
+    );
   }
 
   if (response.status === 204) {
@@ -138,10 +171,15 @@ export const api = {
 
   medications: (query) => request("/api/medications", { query }),
   medication: (id) => request(`/api/medications/${id}`),
-  createMedication: (body) => request("/api/medications", { method: "POST", body }),
+  createMedication: (body) =>
+    request("/api/medications", { method: "POST", body }),
   adjustStock: (id, delta, reason) =>
-    request(`/api/medications/${id}/stock`, { method: "POST", body: { delta, reason } }),
+    request(`/api/medications/${id}/stock`, {
+      method: "POST",
+      body: { delta, reason },
+    }),
   categories: () => request("/api/medications/categories"),
+  stockMovements: () => request("/api/stock-movements"),
 
   patients: (search) => request("/api/patients", { query: { search } }),
   patient: (id) => request(`/api/patients/${id}`),
@@ -150,26 +188,36 @@ export const api = {
   suppliers: () => request("/api/suppliers"),
 
   prescriptions: (query) => request("/api/prescriptions", { query }),
-  createPrescription: (body) => request("/api/prescriptions", { method: "POST", body }),
+  createPrescription: (body) =>
+    request("/api/prescriptions", { method: "POST", body }),
   transitionPrescription: (id, state) =>
-    request(`/api/prescriptions/${id}/state`, { method: "PATCH", body: { state } }),
+    request(`/api/prescriptions/${id}/state`, {
+      method: "PATCH",
+      body: { state },
+    }),
 
   purchaseOrders: (query) => request("/api/purchase-orders", { query }),
   purchaseOrder: (id) => request(`/api/purchase-orders/${id}`),
-  createPurchaseOrder: (body) => request("/api/purchase-orders", { method: "POST", body }),
+  createPurchaseOrder: (body) =>
+    request("/api/purchase-orders", { method: "POST", body }),
   transitionPurchaseOrder: (id, state) =>
-    request(`/api/purchase-orders/${id}/state`, { method: "PATCH", body: { state } }),
+    request(`/api/purchase-orders/${id}/state`, {
+      method: "PATCH",
+      body: { state },
+    }),
 
   sales: (query) => request("/api/sales", { query }),
   createSale: (body) => request("/api/sales", { method: "POST", body }),
-  voidSale: (id) => request(`/api/sales/${id}/void`, { method: "POST" }),
 };
 
 // ---------------------------------------------------------------------------
 // Shared presentation helpers
 // ---------------------------------------------------------------------------
 
-export const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+export const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
 
 /** Map a derived stock status to a status-badge tone class. */
 export const STATUS_TONE = {
@@ -207,7 +255,11 @@ export function formatDate(iso) {
   if (Number.isNaN(date.getTime())) {
     return String(iso);
   }
-  return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 /** Initials for an avatar, e.g. "Amara Okafor" -> "AO". */

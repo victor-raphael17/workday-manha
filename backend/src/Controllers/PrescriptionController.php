@@ -30,7 +30,10 @@ final class PrescriptionController extends Controller
             $filters['patient_id'] = (int) $patientId;
         }
 
-        return Response::ok($this->prescriptions->list($filters));
+        $page    = (int) ($request->query('page')    ?? 1);
+        $perPage = (int) ($request->query('per_page') ?? 25);
+
+        return Response::ok($this->prescriptions->list($filters, $page, $perPage));
     }
 
     public function show(Request $request): Response
