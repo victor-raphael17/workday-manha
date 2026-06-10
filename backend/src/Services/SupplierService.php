@@ -26,55 +26,6 @@ final class SupplierService
     }
 
     /**
-     * @return array<string, mixed>
-     */
-    public function get(int $id): array
-    {
-        $supplier = $this->suppliers->find($id);
-
-        if ($supplier === null) {
-            throw new NotFoundException("Supplier {$id} not found.");
-        }
-
-        return $this->present($supplier);
-    }
-
-    /**
-     * @param array<string, mixed> $input
-     * @return array<string, mixed>
-     */
-    public function create(array $input): array
-    {
-        $data = [
-            'name'          => $input['name'],
-            'contact_email' => $input['contact_email'] ?? null,
-            'phone'         => $input['phone'] ?? null,
-        ];
-
-        return $this->present($this->suppliers->create($data));
-    }
-
-    /**
-     * @param array<string, mixed> $input
-     * @return array<string, mixed>
-     */
-    public function update(int $id, array $input): array
-    {
-        if ($this->suppliers->find($id) === null) {
-            throw new NotFoundException("Supplier {$id} not found.");
-        }
-
-        return $this->present($this->suppliers->update($id, $input) ?? []);
-    }
-
-    public function delete(int $id): void
-    {
-        if (!$this->suppliers->delete($id)) {
-            throw new NotFoundException("Supplier {$id} not found.");
-        }
-    }
-
-    /**
      * @param array<string, mixed> $row
      * @return array<string, mixed>
      */
