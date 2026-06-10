@@ -55,21 +55,36 @@ final class App
         return new Response($payload, $status);
     }
 
-    private function serverError(Throwable $e): Response
-    {
-        $debug = (bool) Config::get('app.debug', false);
+   private function serverError(Throwable $e): Response
+{
+    // 1. Log Estruturado (Sempre executa, mesmo com debug = false)
+    $logData = [
+        'timestamp' => date('c'),
+        'level'     => 'ERROR',
+        'message'   => $e->getMessage(),
+        'exception' => $e::class,
+        'file'      => $e->getFile(),
+        'line'      => $e->getLine(),
+        'code'      => $e->getCode(),
+        'trace'     => explode("\n", $e->getTraceAsString()),
+    ];
 
-        $message = $debug ? $e->getMessage() : 'An unexpected error occurred.';
-        $response = $this->errorResponse(500, $message);
+    // Envia o JSON para o stream de erro padrão (stderr / docker logs / php error log)
+    error_log(json_encode($logData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-        if ($debug) {
-            $response->data['error']['exception'] = $e::class;
-            $response->data['error']['trace'] = explode("\n", $e->getTraceAsString());
-        }
+    // 2. Lógica atual de resposta para o cliente (Mantida intacta)
+    $debug = (bool) Config::get('app.debug', false);
 
-        return $response;
+    $message = $debug ? $e->getMessage() : 'An unexpected error occurred.';
+    $response = $this->errorResponse(500, $message);
+
+    if ($debug) {
+        $response->data['error']['exception'] = $e::class;
+        $response->data['error']['trace'] = explode("\n", $e->getTraceAsString());
     }
 
+    return $response;
+}
     private function handleCors(Request $request): void
     {
         if (headers_sent()) {
