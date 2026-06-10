@@ -9,7 +9,7 @@
 - [x] **Parâmetro `reason` do ajuste de estoque é coletado e descartado**
 
 ### FRONTEND
-- [ ] Escapar dados da API ante de injetar via `innerHTML` (XSS) (Paulo Eduardo)
+- [x] Escapar dados da API ante de injetar via `innerHTML` (XSS) (Paulo Eduardo)
 - [x] Remover wrapper `api.categories` — `frontend/assets/js/api.js:144` (Murilo)
 - [x] Remover wrapper `api.voidSale` — `frontend/assets/js/api.js:165` (Matheus)
 - [ ] **Checar expiração do token proativamente** — `frontend/assets/js/api.js:36` (Jeff)
@@ -22,7 +22,7 @@
 ### BACKEND
 - [x] **Proteger as rotas autenticadas com middleware** — `backend/routes/api.php`, (Murilo)
 - [x] Remover `SessionRepository::purgeExpired()` — `backend/src/Repositories/SessionRepository.php:56` (Paulo Eduardo)
-- [ ] Endpoints sem consumidor de UI - `GET /api/medications/categories` — `backend/routes/api.php` (Paulo Eduardo)
+- [x] Endpoints sem consumidor de UI - `GET /api/medications/categories` — `backend/routes/api.php` (Paulo Eduardo)
 - [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/medications/{id}` — `backend/routes/api.php` (Jeff)
 - [ ] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/patients/{id}` — `backend/routes/api.php` (Jeff)
 - [x] Endpoints sem consumidor de UI - `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php` (Murilo)
