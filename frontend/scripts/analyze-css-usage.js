@@ -18,18 +18,22 @@ async function analyzeCSS() {
     const { PurgeCSS } = require('purgecss');
     const rootDir = path.join(__dirname, '..');
 
+    // fast-glob (usado internamente pelo PurgeCSS) exige forward slashes,
+    // mesmo no Windows. path.join gera backslashes, então convertemos.
+    const toGlob = (...segments) => path.join(rootDir, ...segments).split(path.sep).join('/');
+
     const result = await new PurgeCSS().purge({
       content: [
-        path.join(rootDir, 'pages/**/*.html'),
-        path.join(rootDir, 'index.html'),
-        path.join(rootDir, 'assets/js/page-behaviors.js'),
-        path.join(rootDir, 'assets/js/shell.js'),
-        path.join(rootDir, 'assets/js/ui.js'),
-        path.join(rootDir, 'assets/js/**/*.js'),
+        toGlob('pages/**/*.html'),
+        toGlob('index.html'),
+        toGlob('assets/js/page-behaviors.js'),
+        toGlob('assets/js/shell.js'),
+        toGlob('assets/js/ui.js'),
+        toGlob('assets/js/**/*.js'),
       ],
       css: [
-        path.join(rootDir, 'assets/css/app.css'),
-        path.join(rootDir, 'assets/css/theme.css'),
+        toGlob('assets/css/app.css'),
+        toGlob('assets/css/theme.css'),
       ],
       safelist: {
         standard: [

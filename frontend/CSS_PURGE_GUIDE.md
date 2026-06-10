@@ -246,6 +246,7 @@ Cmd+Opt+I (Mac) ou Ctrl+Shift+I (Windows/Linux)
 ### Passo 3: Testar todos os flows
 
 Enquanto Coverage está rodando, clique em **todas as telas e ações**:
+- Login de teste: `jade@capharmacy.com` / senha `password123`
 
 - ✅ Fazer login
 - ✅ Dashboard → todas as abas
@@ -256,6 +257,14 @@ Enquanto Coverage está rodando, clique em **todas as telas e ações**:
 - ✅ Ordens de compra → listar, criar
 - ✅ PDV → testes de transação
 - ✅ Modais, tooltips, validações
+
+Roteiro de 10 minutos para sentir o produto:
+1. Faça login. Olhe o Dashboard.
+2. Vá em **Inventory**, escolha um remédio, dê entrada de estoque ("Receive"). Veja o número subir.
+3. Vá no **POS**, monte um carrinho com esse remédio, finalize a venda. Volte no Inventory: o número desceu.
+4. No POS/histórico, **anule (void)** a venda. O estoque volta.
+5. Em **Orders**, crie um pedido e mude o estado até `received`. O estoque sobe.
+6. Em **Prescriptions**, leve uma receita até `dispensed` e veja o estoque cair.
 
 ### Passo 4: Gerar relatório
 
