@@ -30,6 +30,7 @@ final class Request
         public readonly array $query,
         private readonly string $rawBody,
         public readonly array $headers = [],
+        public readonly string $ip = '0.0.0.0',
     ) {
     }
 
@@ -41,9 +42,41 @@ final class Request
         $path = parse_url($uri, PHP_URL_PATH) ?: '/';
         $path = '/' . trim(rawurldecode($path), '/');
 
-        return new self($method, $path, $_GET, file_get_contents('php://input') ?: '', self::captureHeaders());
+        return new self(
+            $method,
+            $path,
+            $_GET,
+            file_get_contents('php://input') ?: '',
+            self::captureHeaders(),
+            self::captureIp(),
+        );
     }
 
+    /**
+     * Resolve the client IP. If the app sits behind a trusted reverse proxy
+     * (configured via TRUSTED_PROXIES), prefer the left-most address in
+     * X-Forwarded-For; otherwise fall back to REMOTE_ADDR.
+     */
+    private static function captureIp(): string
+    {
+        $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+        $trustedProxies = array_filter(array_map('trim', explode(',', getenv('TRUSTED_PROXIES') ?: '')));
+
+        if (in_array($remoteAddr, $trustedProxies, true)) {
+            $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+
+            if ($forwardedFor !== '') {
+                $first = trim(explode(',', $forwardedFor)[0]);
+
+                if ($first !== '') {
+                    return $first;
+                }
+            }
+        }
+
+        return $remoteAddr;
+    }
     /**
      * Build a lower-cased header map from $_SERVER (works on any SAPI).
      *

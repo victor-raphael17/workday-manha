@@ -22,6 +22,7 @@ final class AuthService
     public function __construct(
         private readonly UserRepository $users = new UserRepository(),
         private readonly SessionRepository $sessions = new SessionRepository(),
+        private readonly LoginRateLimiter $rateLimiter = new LoginRateLimiter(),
     ) {
     }
 
@@ -30,8 +31,10 @@ final class AuthService
      *
      * @return array<string, mixed> { token, expires_at, user }
      */
-    public function login(string $email, string $password): array
+    public function login(string $email, string $password, string $ip): array
     {
+        $this->rateLimiter->ensureNotLocked($ip, $email);
+
         $user = $this->users->findByEmail($email);
 
         // Always run a hash check so a missing user and a wrong password take a
@@ -39,8 +42,12 @@ final class AuthService
         $hash = $user['password_hash'] ?? '$2y$12$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidin';
 
         if (!password_verify($password, $hash) || $user === null) {
+            $this->rateLimiter->recordFailure($ip, $email);
+
             throw new UnauthorizedException('Invalid email or password.');
         }
+
+        $this->rateLimiter->recordSuccess($ip, $email);
 
         return $this->issueToken($user);
     }

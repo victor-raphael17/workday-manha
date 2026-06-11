@@ -33,7 +33,7 @@ final class App
         try {
             $response = $this->router->dispatch($request);
         } catch (HttpException $e) {
-            $response = $this->errorResponse($e->status, $e->getMessage(), $e->errors);
+            $response = $this->errorResponse($e->status, $e->getMessage(), $e->errors, $e->headers);
         } catch (Throwable $e) {
             $response = $this->serverError($e);
         }
@@ -43,8 +43,9 @@ final class App
 
     /**
      * @param array<string, string[]> $errors
+     * @param array<string, string>   $headers
      */
-    private function errorResponse(int $status, string $message, array $errors = []): Response
+    private function errorResponse(int $status, string $message, array $errors = [], array $headers = []): Response
     {
         $payload = ['error' => ['status' => $status, 'message' => $message]];
 
@@ -52,7 +53,7 @@ final class App
             $payload['error']['fields'] = $errors;
         }
 
-        return new Response($payload, $status);
+        return new Response($payload, $status, $headers);
     }
 
    private function serverError(Throwable $e): Response
