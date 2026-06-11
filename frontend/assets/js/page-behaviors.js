@@ -1128,6 +1128,8 @@ async function bindOrders() {
 
   let orders = [];
   let selectedId = null;
+  let currentPage = 1;
+  let totalPages = 1;
 
   const transition = async (id, state) => {
     try {
@@ -1259,12 +1261,26 @@ async function bindOrders() {
   const load = async () => {
     tbody.innerHTML = `<tr><td colspan="7">${placeholder("Loading orders…")}</td></tr>`;
     try {
-      const result = await api.purchaseOrders();
-      orders = result.data;
+      const result = await api.purchaseOrders({ page: currentPage, per_page: 10 });
+      
+      if (result && result.data) {
+        orders = result.data;
+        currentPage = Number(result.page) || currentPage;
+        totalPages = Number(result.last_page) || totalPages;
+      } else {
+        orders = result || [];
+      }
       render();
     } catch (error) {
       tbody.innerHTML = `<tr><td colspan="7">${placeholder(reportError(error), "error")}</td></tr>`;
     }
+
+    const paginationContainer = document.querySelector(".page-controls");
+    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
+      currentPage = newPage; 
+      load(); 
+    });
+
     await loadBanner();
   };
 
