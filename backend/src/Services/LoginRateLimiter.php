@@ -16,7 +16,7 @@ use App\Repositories\LoginAttemptRepository;
  * one IP. Either bucket tripping the limit blocks the request with 429 until
  * the lockout expires. A successful login clears both buckets.
  */
-final class LoginRateLimiter
+class LoginRateLimiter
 {
     /** Failed attempts allowed within the decay window before locking out. */
     private readonly int $maxAttempts;
