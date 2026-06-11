@@ -158,14 +158,14 @@ Itens transversais (frontend + backend) e de processo.
 - [ ] `GET /api/medications/low-stock` e `GET /api/medications/expiring` — `backend/routes/api.php`
   Sem consumidor (o dashboard já devolve essas listas inline). Decidir se viram telas próprias.
 
-- [ ] `PUT/PATCH/DELETE /api/medications/{id}` — `backend/routes/api.php`
+- [x] `PUT/PATCH/DELETE /api/medications/{id}` — `backend/routes/api.php`
   Sem consumidor. Feature natural: edição/remoção de medicamento (tela de admin).
 
 - [ ] `GET /api/auth/me` — `backend/routes/api.php`
   Sem consumidor hoje, mas **manter**: é o mecanismo do item de frontend "Checar expiração do
   token proativamente". Wirar quando esse item for feito.
 
-- [ ] `PUT/PATCH/DELETE /api/patients/{id}` — `backend/routes/api.php`
+- [x] `PUT/PATCH/DELETE /api/patients/{id}` — `backend/routes/api.php`
   Sem consumidor. Feature natural: edição/remoção de paciente.
 
 - [ ] CRUD de fornecedores (store/show/update/delete) — `backend/routes/api.php`
@@ -182,7 +182,7 @@ Itens transversais (frontend + backend) e de processo.
   `POST /api/auth/login` não limita tentativas. Adicionar throttle por IP/email (contador em
   tabela ou cache) e responder 429 ao estourar o limite.
 
-- [ ] **Paginação nos endpoints de listagem** — `backend/src/Repositories/` (ex.:
+- [x] **Paginação nos endpoints de listagem** — `backend/src/Repositories/` (ex.:
   `MedicationRepository`, `PatientRepository`, `SaleRepository`)
   As queries de `index` retornam todas as linhas (sem `LIMIT`/`OFFSET`). Evidência:
   `grep -rn "LIMIT" backend/src/Repositories/` → nenhum. Adicionar `?page=&per_page=` com limite
@@ -193,7 +193,7 @@ Itens transversais (frontend + backend) e de processo.
   (`grep -rn "error_log\|Logger" backend/src/` → nada). Logar `message`/`exception`/`trace`
   (arquivo ou stderr) para depuração em produção, onde `debug=false` oculta o erro.
 
-- [ ] **Suite de testes automatizados** — `backend/tests/`
+- [x] **Suite de testes automatizados** — `backend/tests/`
   Só existe `smoke.sh` (curl end-to-end); sem testes unitários e sem PHPUnit no `composer.json`.
   Adicionar PHPUnit como dev-dependency e cobrir `AuthService`, `MedicationService` (incl.
   `adjustStock`) e o `Validator`.

@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 namespace App\Repositories;
-
-final class StockMovementRepository extends Repository
+class StockMovementRepository extends Repository
 {
     public function create(int $medicationId, int $delta, ?string $reason): void
     {

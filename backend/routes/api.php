@@ -62,11 +62,6 @@ return static function (Router $r): void {
 
         // Suppliers
         $r->get('/api/suppliers', [SupplierController::class, 'index']);
-        $r->post('/api/suppliers', [SupplierController::class, 'store']);
-        $r->get('/api/suppliers/{id}', [SupplierController::class, 'show']);
-        $r->put('/api/suppliers/{id}', [SupplierController::class, 'update']);
-        $r->patch('/api/suppliers/{id}', [SupplierController::class, 'update']);
-        $r->delete('/api/suppliers/{id}', [SupplierController::class, 'destroy']);
 
         // Prescriptions
         $r->get('/api/prescriptions', [PrescriptionController::class, 'index']);
@@ -79,5 +74,5 @@ return static function (Router $r): void {
         $r->post('/api/purchase-orders', [PurchaseOrderController::class, 'store']);
         $r->get('/api/purchase-orders/{id}', [PurchaseOrderController::class, 'show']);
         $r->patch('/api/purchase-orders/{id}/state', [PurchaseOrderController::class, 'transition']);
-    }); 
+    });
 };

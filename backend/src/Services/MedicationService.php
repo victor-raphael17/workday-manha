@@ -24,10 +24,10 @@ final class MedicationService
     private const EXPIRY_SOON_DAYS = 90;
 
     public function __construct(
-    private readonly MedicationRepository $medications = new MedicationRepository(),
-    private readonly StockMovementRepository $stockMovements = new StockMovementRepository(),
-) {
-}
+        private readonly MedicationRepository $medications,
+        private readonly StockMovementRepository $stockMovements,
+    ) {
+    }
 
     /**
      * @param array{search?: string, category?: string, controlled?: bool} $filters
@@ -120,25 +120,16 @@ final class MedicationService
             throw new NotFoundException("Medication {$id} not found.");
         }
 
-        $updated = Database::transaction(function () use ($id, $delta, $reason): ?array {
-    $updated = $this->medications->adjustStock($id, $delta);
+        $updated = $this->medications->adjustStock($id, $delta);
 
-    if ($updated === null) {
-        return null;
-    }
+        if ($updated === null) {
+            throw new DomainException('Adjustment rejected: stock cannot go below zero.');
+        }
 
-    $this->stockMovements->create($id, $delta, $reason);
+        $this->stockMovements->create($id, $delta, $reason);
 
-    return $updated;
-});
-
-if ($updated === null) {
-    throw new DomainException('Adjustment rejected: stock cannot go below zero.');
+        return $this->present($updated);
 }
-
-return $this->present($updated);
-    }
-
     public function delete(int $id): void
     {
         if (!$this->medications->delete($id)) {
