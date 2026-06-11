@@ -26,8 +26,8 @@
 - [x] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/medications/{id}` — `backend/routes/api.php` (Jeff)
 - [x] Endpoints sem consumidor de UI - `PUT/PATCH/DELETE /api/patients/{id}` — `backend/routes/api.php` (Jeff)
 - [x] Endpoints sem consumidor de UI - `GET /api/sales`, `GET /api/sales/{id}`, `POST /api/sales/{id}/void` — `backend/routes/api.php` (Murilo)
-- [ ] **Paginação nos endpoints de listagem** — `backend/src/Repositories/` (Matheus)
-- [ ] **Suite de testes automatizados** — `backend/tests/` (Matheus)
+- [x] **Paginação nos endpoints de listagem** — `backend/src/Repositories/` (Matheus)
+- [x] **Suite de testes automatizados** — `backend/tests/` (Matheus)
 
 
 ## GRUPO FABIO:
