@@ -937,7 +937,6 @@ async function bindPatients() {
     }
     try {
       const p = await api.patient(id);
-      console.log(p);
       fields.name.textContent = p.name;
       fields.summary.textContent = `${p.code} · DOB ${formatDate(p.dob)}`;
       fields.phone.textContent = p.phone || "—";
