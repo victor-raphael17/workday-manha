@@ -207,12 +207,15 @@ export function renderPagination(container, currentPage, totalPages, onPageChang
   if (!container) return;
   
   container.innerHTML = `
-    <div class="d-flex gap-2 justify-content-center mt-4 mb-3">
-      <button type="button" class="btn btn-outline-secondary btn-sm px-3" id="btn-previous" ${currentPage <= 1 ? "disabled" : ""}>Previous</button>
-      <span class="d-flex align-items-center mono text-body-secondary small">Page ${currentPage} of ${totalPages}</span>
-      <button type="button" class="btn btn-outline-secondary btn-sm px-3" id="btn-next" ${currentPage >= totalPages ? "disabled" : ""}>Next</button>
-    </div>
+    <i id="btn-previous" class="cursor ${currentPage <= 1 ? "opacity-50 pe-none" : ""}" data-lucide="arrowLeft"></i>
+    <span class="mono text-body-secondary" id="pageIndicator">Page ${currentPage} of ${totalPages}</span>
+    <i id="btn-next" class="cursor ${currentPage >= totalPages ? "opacity-50 pe-none" : ""}" data-lucide="arrowRight"></i>
   `;
+
+  // Recria os ícones do Lucide dentro deste container, já que acabamos de recriar as tags <i>
+  if (window.lucide) {
+    window.lucide.createIcons({ root: container });
+  }
 
   container.querySelector("#btn-previous")?.addEventListener("click", () => {
     if (currentPage > 1) onPageChange(currentPage - 1); // Subtrai 1

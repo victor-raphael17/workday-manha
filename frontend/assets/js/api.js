@@ -181,7 +181,7 @@ export const api = {
   categories: () => request("/api/medications/categories"),
   stockMovements: () => request("/api/stock-movements"),
 
-  patients: (search) => request("/api/patients", { query: { search } }),
+  patients: (query) => request("/api/patients", { query }),
   patient: (id) => request(`/api/patients/${id}`),
   createPatient: (body) => request("/api/patients", { method: "POST", body }),
 

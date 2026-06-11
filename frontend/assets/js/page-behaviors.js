@@ -8,6 +8,8 @@ import {
 } from "./api.js";
 import { openForm, placeholder, statusBadge, toast } from "./ui.js";
 
+import { renderPagination } from "./ui.js";
+
 const POS_TAX_RATE = 0.05; // mirrors the API's TAX_RATE for the live cart preview
 
 function refreshIcons() {
@@ -908,6 +910,9 @@ async function bindPatients() {
 
   let patients = [];
   let selectedId = null;
+  let currentPage = 1;
+  let totalPages = 1;
+  
 
   const renderDetail = async (id) => {
     if (!id || !fields.name) {
@@ -1005,15 +1010,33 @@ async function bindPatients() {
   const load = async () => {
     tbody.innerHTML = `<tr><td colspan="6">${placeholder("Loading patients…")}</td></tr>`;
     try {
-      const result = await api.patients();
-      patients = result.data;
+      const term = (search?.value || "").trim();
+      const result = await api.patients({ page: currentPage, per_page: 10, search: term });
+      
+      if (result && result.data) {
+        patients = result.data;
+        currentPage = Number(result.page) || currentPage;
+        totalPages = Number(result.last_page) || totalPages;
+      } else {
+        patients = result || [];
+      }
+
       render();
     } catch (error) {
       tbody.innerHTML = `<tr><td colspan="6">${placeholder(reportError(error), "error")}</td></tr>`;
     }
+
+    const paginationContainer = document.querySelector(".page-controls");
+    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
+      currentPage = newPage; 
+      load(); 
+    });
   };
 
-  search?.addEventListener("input", render);
+  search?.addEventListener("input", () => {
+    currentPage = 1;
+    load();
+  });
 
   addButton?.addEventListener("click", async (event) => {
     event.preventDefault();
