@@ -179,3 +179,30 @@ export function openForm({ title, fields, submitLabel = "Save" }) {
     }
   });
 }
+
+/** 
+ * Renderiza controles de paginação em um container específico.
+ * @param {HTMLElement} container - Elemento onde a paginação será injetada.
+ * @param {number} currentPage - A página atual.
+ * @param {number} totalPages - O total de páginas.
+ * @param {Function} onPageChange - Callback chamado com o número da nova página (soma ou subtrai 1).
+ */
+export function renderPagination(container, currentPage, totalPages, onPageChange) {
+  if (!container) return;
+  
+  container.innerHTML = `
+    <div class="d-flex gap-2 justify-content-center mt-4 mb-3">
+      <button type="button" class="btn btn-outline-secondary btn-sm px-3" id="btn-previous" ${currentPage <= 1 ? "disabled" : ""}>Previous</button>
+      <span class="d-flex align-items-center mono text-body-secondary small">Page ${currentPage} of ${totalPages}</span>
+      <button type="button" class="btn btn-outline-secondary btn-sm px-3" id="btn-next" ${currentPage >= totalPages ? "disabled" : ""}>Next</button>
+    </div>
+  `;
+
+  container.querySelector("#btn-previous")?.addEventListener("click", () => {
+    if (currentPage > 1) onPageChange(currentPage - 1); // Subtrai 1
+  });
+
+  container.querySelector("#btn-next")?.addEventListener("click", () => {
+    if (currentPage < totalPages) onPageChange(currentPage + 1); // Adiciona 1
+  });
+}
