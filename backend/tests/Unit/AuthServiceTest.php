@@ -11,7 +11,7 @@ use App\Services\AuthService;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
-final class AuthServiceTest extends TestCase
+class AuthServiceTest extends TestCase
 {
     private UserRepository&MockObject $users;
     private SessionRepository&MockObject $sessions;
@@ -27,7 +27,11 @@ final class AuthServiceTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->service = new AuthService($this->users, $this->sessions);
+        $rateLimiter = $this->getMockBuilder(\App\Services\LoginRateLimiter::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->service = new AuthService($this->users, $this->sessions, $rateLimiter);
     }
 
     // --- login() ---
@@ -41,7 +45,7 @@ final class AuthServiceTest extends TestCase
 
         $this->expectException(UnauthorizedException::class);
 
-        $this->service->login('user@example.com', 'wrong');
+        $this->service->login('user@example.com', 'wrong', '127.0.0.1');
     }
 
     public function test_login_throws_when_user_not_found(): void
@@ -50,7 +54,7 @@ final class AuthServiceTest extends TestCase
 
         $this->expectException(UnauthorizedException::class);
 
-        $this->service->login('nobody@example.com', 'password');
+        $this->service->login('user@example.com', 'wrong', '127.0.0.1');
     }
 
     public function test_login_returns_token_on_success(): void
@@ -58,7 +62,7 @@ final class AuthServiceTest extends TestCase
         $this->users->method('findByEmail')->willReturn($this->sampleUser());
         $this->sessions->method('create')->willReturn([]);
 
-        $result = $this->service->login('user@example.com', 'secret');
+        $result = $result = $this->service->login('user@example.com', 'secret', '127.0.0.1');
 
         $this->assertArrayHasKey('token', $result);
         $this->assertArrayHasKey('expires_at', $result);
