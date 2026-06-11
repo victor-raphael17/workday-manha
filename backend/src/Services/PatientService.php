@@ -43,7 +43,9 @@ final class PatientService
         }
 
         $patient = $this->present($patient);
-        $patient['prescriptions'] = $this->prescriptions->all(['patient_id' => $id]);
+        $prescriptions = $this->prescriptions->all(['patient_id' => $id]);
+
+$patient['prescriptions'] = $prescriptions['data'] ?? [];
         $patient['active_prescriptions'] = count(array_filter(
             $patient['prescriptions'],
             static fn (array $rx): bool => in_array($rx['state'], ['new', 'verifying', 'ready'], true)

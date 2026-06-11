@@ -5,8 +5,11 @@ import {
   formatDate,
   initials,
   toneClass,
+  mountOfflineBanner,
 } from "./api.js";
 import { openForm, placeholder, statusBadge, toast, renderTableBody, esc } from "./ui.js";
+
+import { renderPagination } from "./ui.js";
 
 const POS_TAX_RATE = 0.05; // mirrors the API's TAX_RATE for the live cart preview
 
@@ -212,6 +215,8 @@ async function bindInventory() {
   let medications = [];
   let activeFilter = "all";
   let selectedId = null;
+  let currentPage = 1;
+  let totalPages = 1;
 
   const matchesFilter = (m) => {
     if (activeFilter === "low") {
@@ -327,23 +332,44 @@ async function bindInventory() {
   const load = async () => {
     renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading inventory…" });
     try {
-      const result = await api.medications();
-      medications = result.data;
+      const term = (search?.value || "").trim();
+      const filterParam = activeFilter === "all" ? undefined : activeFilter;
+      const result = await api.medications({ page: currentPage, per_page: 7, search: term, filter: filterParam });
+      
+      if (result && result.data) {
+        medications = result.data;
+        currentPage = Number(result.page) || currentPage;
+        totalPages = Number(result.last_page) || totalPages;
+      } else {
+        medications = result || [];
+      }
+
       updateChipCounts();
       render();
     } catch (error) {
       renderTableBody(tbody, [], null, { error: reportError(error) });
     }
+
+    const paginationContainer = document.querySelector(".page-controls");
+    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
+      currentPage = newPage;
+      load();
+    });
   };
 
   chips.forEach((chip) => {
     chip.addEventListener("click", () => {
       activeFilter = chip.dataset.stockFilter;
       chips.forEach((c) => c.classList.toggle("active", c === chip));
-      render();
+      currentPage = 1;
+      load();
     });
   });
-  search?.addEventListener("input", render);
+
+  search?.addEventListener("input", () => {
+    currentPage = 1;
+    load();
+  });
 
   addButton?.addEventListener("click", async () => {
     event.preventDefault();
@@ -401,11 +427,9 @@ async function bindInventory() {
       await load();
     } catch (error) {
       reportError(error);
-    }
-    finally {      
+    } finally {
       addButton.disabled = false;
     }
-    
   });
 
   receiveChip?.addEventListener("click", async () => {
@@ -683,9 +707,7 @@ async function bindPos() {
       render();
     } catch (error) {
       reportError(error);
-    }
-
-    finally {
+    } finally {
       payButton.disabled = true;
     }
   });
@@ -804,7 +826,7 @@ async function bindPrescriptions() {
   };
 
   addButton?.addEventListener("click", async () => {
-    event.preventDefault(); 
+    event.preventDefault();
     addButton.disabled = true;
     let patients;
     let medications;
@@ -873,11 +895,8 @@ async function bindPrescriptions() {
       await load();
     } catch (error) {
       reportError(error);
-      
-    }
-    finally {      
+    } finally {
       addButton.disabled = false;
-      
     }
   });
 
@@ -908,21 +927,9 @@ async function bindPatients() {
 
   let patients = [];
   let selectedId = null;
-
-  const renderChips = (container, items, emptyLabel) => {
-    if (!container) {
-      return;
-    }
-    container.innerHTML = "";
-    const values = (items || []).filter(Boolean);
-    const chips = values.length ? values : [emptyLabel];
-    chips.forEach((text) => {
-      const chip = document.createElement("span");
-      chip.className = "chip";
-      chip.textContent = text;
-      container.appendChild(chip);
-    });
-  };
+  let currentPage = 1;
+  let totalPages = 1;
+  
 
   const renderDetail = async (id) => {
     if (!id || !fields.name) {
@@ -943,6 +950,30 @@ async function bindPatients() {
     } catch (error) {
       reportError(error);
     }
+  };
+
+  const renderChips = (container, items, emptyLabel) => {
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const values = Array.isArray(items)
+      ? items.filter(Boolean)
+      : items
+        ? String(items)
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
+
+    const chips = values.length ? values : [emptyLabel];
+
+    chips.forEach((text) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = text;
+      container.appendChild(chip);
+    });
   };
 
   const render = () => {
@@ -977,7 +1008,7 @@ async function bindPatients() {
           .forEach((r) => r.classList.toggle("table-active", r === row));
         renderDetail(selectedId);
       };
-      row.addEventListener("click", select);
+
       row.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -992,17 +1023,35 @@ async function bindPatients() {
   const load = async () => {
     renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading patients…" });
     try {
-      const result = await api.patients();
-      patients = result.data;
+      const term = (search?.value || "").trim();
+      const result = await api.patients({ page: currentPage, per_page: 10, search: term });
+      
+      if (result && result.data) {
+        patients = result.data;
+        currentPage = Number(result.page) || currentPage;
+        totalPages = Number(result.last_page) || totalPages;
+      } else {
+        patients = result || [];
+      }
+
       render();
     } catch (error) {
       renderTableBody(tbody, [], null, { error: reportError(error) });
     }
+
+    const paginationContainer = document.querySelector(".page-controls");
+    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
+      currentPage = newPage; 
+      load(); 
+    });
   };
 
-  search?.addEventListener("input", render);
+  search?.addEventListener("input", () => {
+    currentPage = 1;
+    load();
+  });
 
-  addButton?.addEventListener("click", async () => {
+  addButton?.addEventListener("click", async (event) => {
     event.preventDefault();
     addButton.disabled = true;
     const values = await openForm({
@@ -1041,8 +1090,7 @@ async function bindPatients() {
       await load();
     } catch (error) {
       reportError(error);
-    }
-    finally {
+    } finally {
       addButton.disabled = false;
     }
   });
@@ -1093,6 +1141,8 @@ async function bindOrders() {
 
   let orders = [];
   let selectedId = null;
+  let currentPage = 1;
+  let totalPages = 1;
 
   const transition = async (id, state) => {
     try {
@@ -1220,12 +1270,26 @@ async function bindOrders() {
   const load = async () => {
     renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading orders…" });
     try {
-      const result = await api.purchaseOrders();
-      orders = result.data;
+      const result = await api.purchaseOrders({ page: currentPage, per_page: 10 });
+      
+      if (result && result.data) {
+        orders = result.data;
+        currentPage = Number(result.page) || currentPage;
+        totalPages = Number(result.last_page) || totalPages;
+      } else {
+        orders = result || [];
+      }
       render();
     } catch (error) {
       renderTableBody(tbody, [], null, { error: reportError(error) });
     }
+
+    const paginationContainer = document.querySelector(".page-controls");
+    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
+      currentPage = newPage; 
+      load(); 
+    });
+
     await loadBanner();
   };
 
@@ -1303,13 +1367,9 @@ async function bindOrders() {
       await load();
     } catch (error) {
       reportError(error);
-      
-    }
-    
-    finally {
+    } finally {
       addButton.disabled = false;
     }
-
   });
 
   await load();
@@ -1355,6 +1415,8 @@ async function bindStockMovements() {
 // ---------------------------------------------------------------------------
 
 export function bindPageBehaviors(pageId) {
+  mountOfflineBanner();
+
   const binders = {
     dashboard: bindDashboard,
     inventory: bindInventory,

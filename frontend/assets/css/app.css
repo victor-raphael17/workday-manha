@@ -744,6 +744,11 @@ body {
   z-index: 25;
 }
 
+/* Pagination Controls */
+.cursor {
+  cursor: pointer;
+}
+
 body.nav-open .app-scrim {
   opacity: 1;
   pointer-events: auto;

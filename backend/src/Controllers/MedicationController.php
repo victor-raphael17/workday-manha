@@ -8,6 +8,8 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
 use App\Services\MedicationService;
+use App\Repositories\MedicationRepository;
+use App\Repositories\StockMovementRepository;
 
 /**
  * HTTP endpoints for the medication catalogue and stock control.
@@ -15,9 +17,12 @@ use App\Services\MedicationService;
 final class MedicationController extends Controller
 {
     public function __construct(
-        private readonly MedicationService $medications = new MedicationService(),
-    ) {
-    }
+    private readonly MedicationService $medications = new MedicationService(
+        new MedicationRepository(),
+        new StockMovementRepository()
+    ),
+) {
+}
 
     public function index(Request $request): Response
     {

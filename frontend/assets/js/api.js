@@ -96,6 +96,124 @@ export const auth = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Connectivity status + retry support
+// ---------------------------------------------------------------------------
+
+/**
+ * Backoff schedule (ms) for automatic retries of network failures on
+ * idempotent (GET) requests. The request is attempted once, then retried
+ * after each of these delays before finally giving up.
+ */
+const RETRY_DELAYS_MS = [500, 1500, 3000];
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Tracks whether the API was reachable on the most recent request and lets
+ * the UI react to changes (e.g. show/hide a global "API indisponível"
+ * banner) and re-issue the request that last failed with a network error.
+ *
+ * Usage:
+ *   const unsubscribe = apiStatus.subscribe((online) => { ... });
+ *   apiStatus.retry(); // re-runs the last network-failed request
+ */
+class ApiStatus extends EventTarget {
+  constructor() {
+    super();
+    this.online = true;
+    this._lastRequest = null;
+  }
+
+  _setOnline(online) {
+    if (this.online === online) {
+      return;
+    }
+    this.online = online;
+    this.dispatchEvent(new CustomEvent("change", { detail: { online } }));
+  }
+
+  /**
+   * Subscribe to connectivity changes. The callback is invoked immediately
+   * with the current status, then again on every change. Returns a function
+   * that unsubscribes.
+   */
+  subscribe(callback) {
+    const handler = (event) => callback(event.detail.online);
+    this.addEventListener("change", handler);
+    callback(this.online);
+    return () => this.removeEventListener("change", handler);
+  }
+
+  /** Whether there is a failed request that can be retried. */
+  get canRetry() {
+    return this._lastRequest !== null;
+  }
+
+  /**
+   * Re-issue the request that most recently failed with a network error
+   * (ApiError status 0). Resolves/rejects exactly like the original call.
+   * If the retry itself reaches the server — even with an error response —
+   * connectivity is considered restored and the offline banner is hidden.
+   */
+  async retry() {
+    if (!this._lastRequest) {
+      return pingApi();
+    }
+    const { path, options } = this._lastRequest;
+    try {
+      const result = await request(path, options);
+      this.dispatchEvent(new CustomEvent("retry-success", { detail: { path } }));
+      return result;
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 0) {
+        throw err;
+      }
+      // Reached the server this time: surface the (non-network) error to
+      // the caller, but the API itself is back online.
+      this.dispatchEvent(new CustomEvent("retry-success", { detail: { path } }));
+      throw err;
+    }
+  }
+}
+
+export const apiStatus = new ApiStatus();
+
+/**
+ * Lightweight check used to detect when the API has come back online. Safe
+ * to call from a "Tentar novamente" button. If connectivity is restored and
+ * a request had previously failed, that request is automatically retried.
+ */
+export async function pingApi() {
+  try {
+    await fetch(`${API_BASE}/api/auth/me`, { method: "GET" });
+    const wasOffline = !apiStatus.online;
+    apiStatus._setOnline(true);
+    if (wasOffline && apiStatus._lastRequest) {
+      try {
+        await apiStatus.retry();
+      } catch {
+        // The original caller already surfaced this error; nothing else to do.
+      }
+    }
+    return true;
+  } catch {
+    apiStatus._setOnline(false);
+    return false;
+  }
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("online", () => {
+    pingApi();
+  });
+  window.addEventListener("offline", () => {
+    apiStatus._setOnline(false);
+  });
+}
+
 async function request(path, { method = "GET", body, query } = {}) {
   let url = `${API_BASE}${path}`;
 
@@ -127,19 +245,40 @@ async function request(path, { method = "GET", body, query } = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
+  const fetchOptions = {
+    method,
+    headers: Object.keys(headers).length ? headers : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  };
+
   let response;
-  try {
-    response = await fetch(url, {
-      method,
-      headers: Object.keys(headers).length ? headers : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-  } catch (networkError) {
-    throw new ApiError(
-      0,
-      `Cannot reach the API at ${API_BASE}. Is it running?`,
-    );
+  let attempt = 0;
+  for (;;) {
+    try {
+      response = await fetch(url, fetchOptions);
+      break;
+    } catch (networkError) {
+      // Only auto-retry idempotent GET requests; mutations are left for the
+      // user to retry explicitly (e.g. via the offline banner) so we never
+      // silently resubmit a write.
+      if (method === "GET" && attempt < RETRY_DELAYS_MS.length) {
+        await delay(RETRY_DELAYS_MS[attempt]);
+        attempt += 1;
+        continue;
+      }
+
+      apiStatus._lastRequest = { path, options: { method, body, query } };
+      apiStatus._setOnline(false);
+      throw new ApiError(
+        0,
+        `Cannot reach the API at ${API_BASE}. Is it running?`,
+      );
+    }
   }
+
+  // A response (even an error one) means the API is reachable.
+  apiStatus._lastRequest = null;
+  apiStatus._setOnline(true);
 
   if (response.status === 204) {
     return null;
@@ -181,7 +320,7 @@ export const api = {
   categories: () => request("/api/medications/categories"),
   stockMovements: () => request("/api/stock-movements"),
 
-  patients: (search) => request("/api/patients", { query: { search } }),
+  patients: (query) => request("/api/patients", { query }),
   patient: (id) => request(`/api/patients/${id}`),
   createPatient: (body) => request("/api/patients", { method: "POST", body }),
 
@@ -271,4 +410,107 @@ export function initials(name) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+}
+
+// ---------------------------------------------------------------------------
+// Global "API indisponível" banner
+// ---------------------------------------------------------------------------
+
+let offlineBannerEl = null;
+
+/**
+ * Inject (once per page) a fixed bottom banner that appears whenever the API
+ * is unreachable, with a "Tentar novamente" button. Call this once from each
+ * page's bootstrap script, e.g.:
+ *
+ *   import { mountOfflineBanner } from "./api.js";
+ *   mountOfflineBanner();
+ *
+ * Returns the banner element, creating it on first call.
+ */
+export function mountOfflineBanner() {
+  if (typeof document === "undefined") {
+    return null;
+  }
+  if (offlineBannerEl) {
+    return offlineBannerEl;
+  }
+
+  const style = document.createElement("style");
+  style.textContent = `
+    #api-offline-banner {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.6rem 1rem;
+      background: #b91c1c;
+      color: #fff;
+      font: 14px/1.4 system-ui, -apple-system, sans-serif;
+      text-align: center;
+      transform: translateY(100%);
+      transition: transform 0.2s ease-out;
+    }
+    #api-offline-banner.is-visible {
+      transform: translateY(0);
+    }
+    #api-offline-banner button {
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      background: transparent;
+      color: inherit;
+      border-radius: 4px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      font: inherit;
+    }
+    #api-offline-banner button:disabled {
+      opacity: 0.6;
+      cursor: progress;
+    }
+    #api-offline-banner button:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  `;
+  document.head.appendChild(style);
+
+  offlineBannerEl = document.createElement("div");
+  offlineBannerEl.id = "api-offline-banner";
+  offlineBannerEl.setAttribute("role", "alert");
+  offlineBannerEl.setAttribute("aria-live", "assertive");
+  offlineBannerEl.innerHTML = `
+    <span>Desconectado. Verifique sua conexão de internet.</span>
+    <button type="button">Tentar novamente</button>
+  `;
+
+  const button = offlineBannerEl.querySelector("button");
+  const resetButton = () => {
+    button.disabled = false;
+    button.textContent = "Tentar novamente";
+  };
+
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    button.textContent = "Tentando...";
+    const ok = await (apiStatus.canRetry ? apiStatus.retry().then(() => true, () => apiStatus.online) : pingApi());
+    if (!ok) {
+      resetButton();
+    }
+  });
+
+  document.body.appendChild(offlineBannerEl);
+
+  apiStatus.subscribe((online) => {
+    offlineBannerEl.classList.toggle("is-visible", !online);
+    if (online) {
+      resetButton();
+    }
+  });
+
+  return offlineBannerEl;
 }
