@@ -9,7 +9,7 @@ namespace App\Repositories;
  * stored; the raw token lives solely in the client. A session row is the
  * server-side record that makes logout (and expiry) possible.
  */
-final class SessionRepository extends Repository
+class SessionRepository extends Repository
 {
     /**
      * Create a session for a user and return its row.

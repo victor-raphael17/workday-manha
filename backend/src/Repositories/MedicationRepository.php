@@ -7,7 +7,7 @@ namespace App\Repositories;
 /**
  * Data access for the medications (stock catalogue) table.
  */
-final class MedicationRepository extends Repository
+class MedicationRepository extends Repository
 {
     private const COLUMNS = 'id, sku, name, strength, form, category, on_hand, reorder_point, '
         . 'price, expiry, controlled, recalled, created_at, updated_at';
