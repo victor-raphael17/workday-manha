@@ -8,7 +8,7 @@ namespace App\Repositories;
  * Data access for staff users. The password hash is only ever read here for
  * credential checks in the service layer; it is never returned to clients.
  */
-final class UserRepository extends Repository
+class UserRepository extends Repository
 {
     private const COLUMNS = 'id, name, email, role, created_at, updated_at';
 
