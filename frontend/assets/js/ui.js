@@ -21,11 +21,21 @@ export function toast(message, tone = "info") {
   if (!toastHost) {
     toastHost = document.createElement("div");
     toastHost.className = "toast-host";
+    
+    // Define o container global como uma região de aria-live persistente.
+    // Isso garante que leitores de tela monitorem qualquer inserção de toast aqui dentro.
+    toastHost.setAttribute("aria-live", "polite");
+    toastHost.setAttribute("aria-atomic", "false");
+    
     document.body.appendChild(toastHost);
   }
 
   const el = document.createElement("div");
   el.className = `toast-note toast-${tone}`;
+  
+  // Adiciona o papel semântico de status para o toast individual.
+  el.setAttribute("role", "status");
+  
   el.textContent = message;
   toastHost.appendChild(el);
 
@@ -43,12 +53,18 @@ export function statusBadge(stateKey, label) {
 /** Render a centered "empty" / "error" / "loading" placeholder string. */
 export function placeholder(message, tone = "muted") {
   const cls = tone === "error" ? "text-danger" : "text-body-secondary";
-  return `<div class="muted-note text-center w-100 py-4 ${esc(cls)}">${esc(message)}</div>`;
+  
+  // Se for um estado de erro, usamos role="alert" (assertivo) para avisar o usuário imediatamente.
+  // Caso contrário (loading, vazio), usamos role="status" (polite).
+  const role = tone === "error" ? "alert" : "status";
+  const live = tone === "error" ? "assertive" : "polite";
+
+  return `<div class="muted-note text-center w-100 py-4 ${esc(cls)}" role="${role}" aria-live="${live}">${esc(message)}</div>`;
 }
 
 /**
  * Open a modal form. `fields` is an array of:
- *   { name, label, type?, required?, value?, placeholder?, options?, help? }
+ * { name, label, type?, required?, value?, placeholder?, options?, help? }
  * `type` may be text | number | email | date | select | checkbox.
  * Resolves to a values object, or null if cancelled.
  */
