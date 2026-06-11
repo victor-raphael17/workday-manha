@@ -217,6 +217,8 @@ async function bindInventory() {
   let medications = [];
   let activeFilter = "all";
   let selectedId = null;
+  let currentPage = 1;
+  let totalPages = 1;
 
   const matchesFilter = (m) => {
     if (activeFilter === "low") {
@@ -336,23 +338,44 @@ async function bindInventory() {
   const load = async () => {
     tbody.innerHTML = `<tr><td colspan="7">${placeholder("Loading inventory…")}</td></tr>`;
     try {
-      const result = await api.medications();
-      medications = result.data;
+      const term = (search?.value || "").trim();
+      const filterParam = activeFilter === "all" ? undefined : activeFilter;
+      const result = await api.medications({ page: currentPage, per_page: 7, search: term, filter: filterParam });
+      
+      if (result && result.data) {
+        medications = result.data;
+        currentPage = Number(result.page) || currentPage;
+        totalPages = Number(result.last_page) || totalPages;
+      } else {
+        medications = result || [];
+      }
+
       updateChipCounts();
       render();
     } catch (error) {
       tbody.innerHTML = `<tr><td colspan="7">${placeholder(reportError(error), "error")}</td></tr>`;
     }
+
+    const paginationContainer = document.querySelector(".page-controls");
+    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
+      currentPage = newPage;
+      load();
+    });
   };
 
   chips.forEach((chip) => {
     chip.addEventListener("click", () => {
       activeFilter = chip.dataset.stockFilter;
       chips.forEach((c) => c.classList.toggle("active", c === chip));
-      render();
+      currentPage = 1;
+      load();
     });
   });
-  search?.addEventListener("input", render);
+
+  search?.addEventListener("input", () => {
+    currentPage = 1;
+    load();
+  });
 
   addButton?.addEventListener("click", async () => {
     event.preventDefault();
