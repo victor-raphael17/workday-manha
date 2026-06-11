@@ -408,11 +408,9 @@ async function bindInventory() {
       await load();
     } catch (error) {
       reportError(error);
-    }
-    finally {      
+    } finally {
       addButton.disabled = false;
     }
-    
   });
 
   receiveChip?.addEventListener("click", async () => {
@@ -690,9 +688,7 @@ async function bindPos() {
       render();
     } catch (error) {
       reportError(error);
-    }
-
-    finally {
+    } finally {
       payButton.disabled = true;
     }
   });
@@ -811,7 +807,7 @@ async function bindPrescriptions() {
   };
 
   addButton?.addEventListener("click", async () => {
-    event.preventDefault(); 
+    event.preventDefault();
     addButton.disabled = true;
     let patients;
     let medications;
@@ -880,11 +876,8 @@ async function bindPrescriptions() {
       await load();
     } catch (error) {
       reportError(error);
-      
-    }
-    finally {      
+    } finally {
       addButton.disabled = false;
-      
     }
   });
 
@@ -916,21 +909,6 @@ async function bindPatients() {
   let patients = [];
   let selectedId = null;
 
-  const renderChips = (container, items, emptyLabel) => {
-    if (!container) {
-      return;
-    }
-    container.innerHTML = "";
-    const values = (items || []).filter(Boolean);
-    const chips = values.length ? values : [emptyLabel];
-    chips.forEach((text) => {
-      const chip = document.createElement("span");
-      chip.className = "chip";
-      chip.textContent = text;
-      container.appendChild(chip);
-    });
-  };
-
   const renderDetail = async (id) => {
     if (!id || !fields.name) {
       return;
@@ -950,6 +928,30 @@ async function bindPatients() {
     } catch (error) {
       reportError(error);
     }
+  };
+
+  const renderChips = (container, items, emptyLabel) => {
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const values = Array.isArray(items)
+      ? items.filter(Boolean)
+      : items
+        ? String(items)
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
+
+    const chips = values.length ? values : [emptyLabel];
+
+    chips.forEach((text) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = text;
+      container.appendChild(chip);
+    });
   };
 
   const render = () => {
@@ -988,7 +990,7 @@ async function bindPatients() {
           .forEach((r) => r.classList.toggle("table-active", r === row));
         renderDetail(selectedId);
       };
-      row.addEventListener("click", select);
+
       row.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -1013,7 +1015,7 @@ async function bindPatients() {
 
   search?.addEventListener("input", render);
 
-  addButton?.addEventListener("click", async () => {
+  addButton?.addEventListener("click", async (event) => {
     event.preventDefault();
     addButton.disabled = true;
     const values = await openForm({
@@ -1052,8 +1054,7 @@ async function bindPatients() {
       await load();
     } catch (error) {
       reportError(error);
-    }
-    finally {
+    } finally {
       addButton.disabled = false;
     }
   });
@@ -1317,13 +1318,9 @@ async function bindOrders() {
       await load();
     } catch (error) {
       reportError(error);
-      
-    }
-    
-    finally {
+    } finally {
       addButton.disabled = false;
     }
-
   });
 
   await load();

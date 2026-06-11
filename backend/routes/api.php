@@ -31,6 +31,9 @@ return static function (Router $r): void {
     // Protegidas — exige token válido em todas abaixo
     $r->middleware('auth', function (Router $r): void {
 
+        // Stock Movements
+        $r->get('/api/stock-movements', [StockMovementController::class, 'index']);
+
         // Dashboard
         $r->get('/api/dashboard', [DashboardController::class, 'summary']);
 

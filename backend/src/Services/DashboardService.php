@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\Repositories\PrescriptionRepository;
 use App\Repositories\SaleRepository;
+use App\Repositories\MedicationRepository;
+use App\Repositories\StockMovementRepository;
 
 /**
  * Aggregates the dashboard's at-a-glance figures: today's sales, the dispensing
@@ -16,11 +18,14 @@ use App\Repositories\SaleRepository;
 final class DashboardService
 {
     public function __construct(
-        private readonly SaleRepository $sales = new SaleRepository(),
-        private readonly PrescriptionRepository $prescriptions = new PrescriptionRepository(),
-        private readonly MedicationService $medications = new MedicationService(),
-    ) {
-    }
+    private readonly SaleRepository $sales = new SaleRepository(),
+    private readonly PrescriptionRepository $prescriptions = new PrescriptionRepository(),
+    private readonly MedicationService $medications = new MedicationService(
+        new MedicationRepository(),
+        new StockMovementRepository()
+    ),
+) {
+}
 
     /**
      * @return array<string, mixed>
