@@ -143,7 +143,8 @@ async function bindDashboard() {
   const queueBody = document.querySelector("[data-dispense-queue]");
   if (queueBody) {
     try {
-      const scripts = (await api.prescriptions()).filter((rx) =>
+      const result = await api.prescriptions();
+      const scripts = result.data.filter((rx) =>
         ["new", "verifying", "ready"].includes(rx.state),
       );
       queueBody.innerHTML = scripts.length
@@ -333,7 +334,8 @@ async function bindInventory() {
   const load = async () => {
     tbody.innerHTML = `<tr><td colspan="7">${placeholder("Loading inventory…")}</td></tr>`;
     try {
-      medications = await api.medications();
+      const result = await api.medications();
+      medications = result.data;
       updateChipCounts();
       render();
     } catch (error) {
@@ -682,7 +684,8 @@ async function bindPos() {
         "success",
       );
       cart.length = 0;
-      products = await api.medications();
+      const result = await api.medications();
+      products = result.data;
       renderProducts();
       render();
     } catch (error) {
@@ -695,7 +698,8 @@ async function bindPos() {
   });
 
   try {
-    products = await api.medications();
+    const result = await api.medications();
+    products = result.data;
     renderProducts();
     render();
   } catch (error) {
@@ -766,7 +770,8 @@ async function bindPrescriptions() {
     board.innerHTML = placeholder("Loading prescriptions…");
     let scripts;
     try {
-      scripts = await api.prescriptions();
+      const result = await api.prescriptions();
+      scripts = result.data;
     } catch (error) {
       board.innerHTML = placeholder(reportError(error), "error");
       return;
@@ -998,7 +1003,8 @@ async function bindPatients() {
   const load = async () => {
     tbody.innerHTML = `<tr><td colspan="6">${placeholder("Loading patients…")}</td></tr>`;
     try {
-      patients = await api.patients();
+      const result = await api.patients();
+      patients = result.data;
       render();
     } catch (error) {
       tbody.innerHTML = `<tr><td colspan="6">${placeholder(reportError(error), "error")}</td></tr>`;
@@ -1229,7 +1235,8 @@ async function bindOrders() {
   const load = async () => {
     tbody.innerHTML = `<tr><td colspan="7">${placeholder("Loading orders…")}</td></tr>`;
     try {
-      orders = await api.purchaseOrders();
+      const result = await api.purchaseOrders();
+      orders = result.data;
       render();
     } catch (error) {
       tbody.innerHTML = `<tr><td colspan="7">${placeholder(reportError(error), "error")}</td></tr>`;
@@ -1243,10 +1250,11 @@ async function bindOrders() {
     let suppliers;
     let medications;
     try {
-      [suppliers, medications] = await Promise.all([
+      const [suppliers, medicationsResult] = await Promise.all([
         api.suppliers(),
         api.medications(),
       ]);
+      medications = medicationsResult.data;
     } catch (error) {
       reportError(error);
       return;
