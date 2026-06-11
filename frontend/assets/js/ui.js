@@ -195,3 +195,33 @@ export function openForm({ title, fields, submitLabel = "Save" }) {
     }
   });
 }
+
+/** 
+ * Renderiza controles de paginação em um container específico.
+ * @param {HTMLElement} container - Elemento onde a paginação será injetada.
+ * @param {number} currentPage - A página atual.
+ * @param {number} totalPages - O total de páginas.
+ * @param {Function} onPageChange - Callback chamado com o número da nova página (soma ou subtrai 1).
+ */
+export function renderPagination(container, currentPage, totalPages, onPageChange) {
+  if (!container) return;
+  
+  container.innerHTML = `
+    <i id="btn-previous" class="cursor ${currentPage <= 1 ? "opacity-50 pe-none" : ""}" data-lucide="arrowLeft"></i>
+    <span class="mono text-body-secondary" id="pageIndicator">Page ${currentPage} of ${totalPages}</span>
+    <i id="btn-next" class="cursor ${currentPage >= totalPages ? "opacity-50 pe-none" : ""}" data-lucide="arrowRight"></i>
+  `;
+
+  // Recria os ícones do Lucide dentro deste container, já que acabamos de recriar as tags <i>
+  if (window.lucide) {
+    window.lucide.createIcons({ root: container });
+  }
+
+  container.querySelector("#btn-previous")?.addEventListener("click", () => {
+    if (currentPage > 1) onPageChange(currentPage - 1); // Subtrai 1
+  });
+
+  container.querySelector("#btn-next")?.addEventListener("click", () => {
+    if (currentPage < totalPages) onPageChange(currentPage + 1); // Adiciona 1
+  });
+}

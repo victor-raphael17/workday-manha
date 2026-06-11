@@ -9,6 +9,8 @@ import {
 } from "./api.js";
 import { openForm, placeholder, statusBadge, toast } from "./ui.js";
 
+import { renderPagination } from "./ui.js";
+
 const POS_TAX_RATE = 0.05; // mirrors the API's TAX_RATE for the live cart preview
 
 function refreshIcons() {
@@ -216,6 +218,8 @@ async function bindInventory() {
   let medications = [];
   let activeFilter = "all";
   let selectedId = null;
+  let currentPage = 1;
+  let totalPages = 1;
 
   const matchesFilter = (m) => {
     if (activeFilter === "low") {
@@ -335,23 +339,44 @@ async function bindInventory() {
   const load = async () => {
     tbody.innerHTML = `<tr><td colspan="7">${placeholder("Loading inventory…")}</td></tr>`;
     try {
-      const result = await api.medications();
-      medications = result.data;
+      const term = (search?.value || "").trim();
+      const filterParam = activeFilter === "all" ? undefined : activeFilter;
+      const result = await api.medications({ page: currentPage, per_page: 7, search: term, filter: filterParam });
+      
+      if (result && result.data) {
+        medications = result.data;
+        currentPage = Number(result.page) || currentPage;
+        totalPages = Number(result.last_page) || totalPages;
+      } else {
+        medications = result || [];
+      }
+
       updateChipCounts();
       render();
     } catch (error) {
       tbody.innerHTML = `<tr><td colspan="7">${placeholder(reportError(error), "error")}</td></tr>`;
     }
+
+    const paginationContainer = document.querySelector(".page-controls");
+    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
+      currentPage = newPage;
+      load();
+    });
   };
 
   chips.forEach((chip) => {
     chip.addEventListener("click", () => {
       activeFilter = chip.dataset.stockFilter;
       chips.forEach((c) => c.classList.toggle("active", c === chip));
-      render();
+      currentPage = 1;
+      load();
     });
   });
-  search?.addEventListener("input", render);
+
+  search?.addEventListener("input", () => {
+    currentPage = 1;
+    load();
+  });
 
   addButton?.addEventListener("click", async () => {
     event.preventDefault();
@@ -909,6 +934,9 @@ async function bindPatients() {
 
   let patients = [];
   let selectedId = null;
+  let currentPage = 1;
+  let totalPages = 1;
+  
 
   const renderDetail = async (id) => {
     if (!id || !fields.name) {
@@ -1006,15 +1034,33 @@ async function bindPatients() {
   const load = async () => {
     tbody.innerHTML = `<tr><td colspan="6">${placeholder("Loading patients…")}</td></tr>`;
     try {
-      const result = await api.patients();
-      patients = result.data;
+      const term = (search?.value || "").trim();
+      const result = await api.patients({ page: currentPage, per_page: 10, search: term });
+      
+      if (result && result.data) {
+        patients = result.data;
+        currentPage = Number(result.page) || currentPage;
+        totalPages = Number(result.last_page) || totalPages;
+      } else {
+        patients = result || [];
+      }
+
       render();
     } catch (error) {
       tbody.innerHTML = `<tr><td colspan="6">${placeholder(reportError(error), "error")}</td></tr>`;
     }
+
+    const paginationContainer = document.querySelector(".page-controls");
+    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
+      currentPage = newPage; 
+      load(); 
+    });
   };
 
-  search?.addEventListener("input", render);
+  search?.addEventListener("input", () => {
+    currentPage = 1;
+    load();
+  });
 
   addButton?.addEventListener("click", async (event) => {
     event.preventDefault();
@@ -1106,6 +1152,8 @@ async function bindOrders() {
 
   let orders = [];
   let selectedId = null;
+  let currentPage = 1;
+  let totalPages = 1;
 
   const transition = async (id, state) => {
     try {
@@ -1237,12 +1285,26 @@ async function bindOrders() {
   const load = async () => {
     tbody.innerHTML = `<tr><td colspan="7">${placeholder("Loading orders…")}</td></tr>`;
     try {
-      const result = await api.purchaseOrders();
-      orders = result.data;
+      const result = await api.purchaseOrders({ page: currentPage, per_page: 10 });
+      
+      if (result && result.data) {
+        orders = result.data;
+        currentPage = Number(result.page) || currentPage;
+        totalPages = Number(result.last_page) || totalPages;
+      } else {
+        orders = result || [];
+      }
       render();
     } catch (error) {
       tbody.innerHTML = `<tr><td colspan="7">${placeholder(reportError(error), "error")}</td></tr>`;
     }
+
+    const paginationContainer = document.querySelector(".page-controls");
+    renderPagination(paginationContainer, currentPage, totalPages, (newPage) => {
+      currentPage = newPage; 
+      load(); 
+    });
+
     await loadBanner();
   };
 
