@@ -6,7 +6,7 @@
 
 import { toneClass } from "./api.js";
 
-function esc(str) {
+export function esc(str) {
   return String(str ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

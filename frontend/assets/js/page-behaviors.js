@@ -6,7 +6,7 @@ import {
   initials,
   toneClass,
 } from "./api.js";
-import { openForm, placeholder, statusBadge, toast } from "./ui.js";
+import { openForm, placeholder, statusBadge, toast, renderTableBody, esc } from "./ui.js";
 
 const POS_TAX_RATE = 0.05; // mirrors the API's TAX_RATE for the live cart preview
 
@@ -98,7 +98,7 @@ async function bindDashboard() {
               "en-US",
               { weekday: "short" },
             );
-            return `<div class="sales-bar-col"><div class="sales-bar ${peak}" style="height:${height}%" title="${currency.format(d.total)}"></div><span class="mono">${label}</span></div>`;
+            return `<div class="sales-bar-col"><div class="sales-bar ${peak}" style="height:${height}%" title="${currency.format(d.total)}"></div><span class="mono">${esc(label)}</span></div>`;
           })
           .join("")
       : placeholder("No sales recorded this week.");
@@ -128,8 +128,8 @@ async function bindDashboard() {
                 <div class="d-flex align-items-center gap-3">
                   <span class="status-avatar ${avatarMod}"><i data-lucide="${icon}"></i></span>
                   <div class="flex-grow-1">
-                    <div class="fw-semibold">${m.name} ${m.strength || ""}</div>
-                    <div class="small text-body-secondary mono">${note}</div>
+                    <div class="fw-semibold">${esc(m.name)} ${esc(m.strength || "")}</div>
+                    <div class="small text-body-secondary mono">${esc(note)}</div>
                   </div>
                   ${statusBadge(tone, label)}
                 </div>
@@ -142,46 +142,43 @@ async function bindDashboard() {
   // Dispensing queue table
   const queueBody = document.querySelector("[data-dispense-queue]");
   if (queueBody) {
+    renderTableBody(queueBody, [], null, { loading: true });
     try {
       const result = await api.prescriptions();
       const scripts = result.data.filter((rx) =>
         ["new", "verifying", "ready"].includes(rx.state),
       );
-      queueBody.innerHTML = scripts.length
-        ? scripts
-            .slice(0, 6)
-            .map((rx) => {
-              const flag = rx.flag
-                ? statusBadge(
-                    rx.flag === "controlled" ? "controlled" : "out",
-                    rx.flag[0].toUpperCase() + rx.flag.slice(1),
-                  )
-                : `<span class="text-body-secondary small">None</span>`;
-              const stateLabel = rx.state[0].toUpperCase() + rx.state.slice(1);
-              const avatarMod = rx.medication.controlled
-                ? "table-avatar-controlled"
-                : "";
-              return `
-                <tr>
-                  <td>
-                    <div class="d-flex align-items-center gap-3">
-                      <span class="table-avatar ${avatarMod}">${initials(rx.patient.name)}</span>
-                      <div>
-                        <div class="fw-semibold">${rx.patient.name}</div>
-                        <div class="small text-body-secondary mono">${rx.code}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>${rx.medication.name} ${rx.medication.strength || ""}</td>
-                  <td>${rx.prescriber}</td>
-                  <td>${flag}</td>
-                  <td>${statusBadge(rx.state, stateLabel)}</td>
-                </tr>`;
-            })
-            .join("")
-        : `<tr><td colspan="5">${placeholder("The dispensing queue is clear.")}</td></tr>`;
+      
+      renderTableBody(queueBody, scripts.slice(0, 6), (rx) => {
+        const flag = rx.flag
+          ? statusBadge(
+              rx.flag === "controlled" ? "controlled" : "out",
+              rx.flag[0].toUpperCase() + rx.flag.slice(1),
+            )
+          : `<span class="text-body-secondary small">None</span>`;
+        const stateLabel = rx.state[0].toUpperCase() + rx.state.slice(1);
+        const avatarMod = rx.medication.controlled
+          ? "table-avatar-controlled"
+          : "";
+        return `
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-3">
+                <span class="table-avatar ${avatarMod}">${initials(rx.patient.name)}</span>
+                <div>
+                  <div class="fw-semibold">${esc(rx.patient.name)}</div>
+                  <div class="small text-body-secondary mono">${esc(rx.code)}</div>
+                </div>
+              </div>
+            </td>
+            <td>${esc(rx.medication.name)} ${esc(rx.medication.strength || "")}</td>
+            <td>${esc(rx.prescriber)}</td>
+            <td>${flag}</td>
+            <td>${statusBadge(rx.state, stateLabel)}</td>
+          </tr>`;
+      }, { placeholderMessage: "The dispensing queue is clear." });
     } catch (error) {
-      queueBody.innerHTML = `<tr><td colspan="5">${placeholder(reportError(error), "error")}</td></tr>`;
+      renderTableBody(queueBody, [], null, { error: reportError(error) });
     }
   }
 
@@ -287,28 +284,24 @@ async function bindInventory() {
       selectedId = visible.length ? visible[0].id : null;
     }
 
-    tbody.innerHTML = visible.length
-      ? visible
-          .map((m) => {
-            const badge = badgeFor(m);
-            const active = m.id === selectedId ? "table-active" : "";
-            const expiryClass =
-              m.status === "expiring" || m.status === "expired"
-                ? "text-warning-emphasis"
-                : "text-body-secondary";
-            return `
-              <tr data-inventory-row data-id="${m.id}" class="${active}" role="button" tabindex="0">
-                <td><div class="fw-semibold">${m.name}</div><div class="small text-body-secondary">${[m.strength, m.form].filter(Boolean).join(" · ")}</div></td>
-                <td class="mono text-body-secondary">${m.sku}</td>
-                <td>${m.category || "—"}</td>
-                <td class="text-end mono">${m.on_hand}</td>
-                <td class="mono ${expiryClass}">${formatDate(m.expiry)}</td>
-                <td>${statusBadge(badge.tone, badge.label)}</td>
-                <td class="text-end mono">${currency.format(m.price)}</td>
-              </tr>`;
-          })
-          .join("")
-      : `<tr><td colspan="7">${placeholder("No medications match your filters.")}</td></tr>`;
+    renderTableBody(tbody, visible, (m) => {
+      const badge = badgeFor(m);
+      const active = m.id === selectedId ? "table-active" : "";
+      const expiryClass =
+        m.status === "expiring" || m.status === "expired"
+          ? "text-warning-emphasis"
+          : "text-body-secondary";
+      return `
+        <tr data-inventory-row data-id="${m.id}" class="${active}" role="button" tabindex="0">
+          <td><div class="fw-semibold">${esc(m.name)}</div><div class="small text-body-secondary">${[esc(m.strength), esc(m.form)].filter(Boolean).join(" · ")}</div></td>
+          <td class="mono text-body-secondary">${esc(m.sku)}</td>
+          <td>${esc(m.category || "—")}</td>
+          <td class="text-end mono">${m.on_hand}</td>
+          <td class="mono ${expiryClass}">${formatDate(m.expiry)}</td>
+          <td>${statusBadge(badge.tone, badge.label)}</td>
+          <td class="text-end mono">${currency.format(m.price)}</td>
+        </tr>`;
+    }, { placeholderMessage: "No medications match your filters." });
 
     tbody.querySelectorAll("[data-inventory-row]").forEach((row) => {
       const select = () => {
@@ -332,14 +325,14 @@ async function bindInventory() {
   };
 
   const load = async () => {
-    tbody.innerHTML = `<tr><td colspan="7">${placeholder("Loading inventory…")}</td></tr>`;
+    renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading inventory…" });
     try {
       const result = await api.medications();
       medications = result.data;
       updateChipCounts();
       render();
     } catch (error) {
-      tbody.innerHTML = `<tr><td colspan="7">${placeholder(reportError(error), "error")}</td></tr>`;
+      renderTableBody(tbody, [], null, { error: reportError(error) });
     }
   };
 
@@ -491,7 +484,7 @@ async function bindPos() {
 
   const renderProducts = () => {
     const sellable = products.filter(
-      (p) => p.status !== "expired" && p.status !== "recalled",
+      (p) => p.status !== "expired" && p.status !== "recalled"
     );
     grid.innerHTML = sellable.length
       ? sellable
@@ -500,8 +493,8 @@ async function bindPos() {
             const out = p.on_hand <= 0 ? "product-card-disabled" : "";
             return `
               <article class="product-card p-3 ${out}" data-product data-id="${p.id}" role="button" tabindex="0">
-                <div class="d-flex justify-content-between gap-3 align-items-start mb-2"><div class="product-title">${p.name}</div><i data-lucide="${icon}"></i></div>
-                <div class="product-meta">${[p.strength, p.form].filter(Boolean).join(" · ")}</div>
+                <div class="d-flex justify-content-between gap-3 align-items-start mb-2"><div class="product-title">${esc(p.name)}</div><i data-lucide="${icon}"></i></div>
+                <div class="product-meta">${[esc(p.strength), esc(p.form)].filter(Boolean).join(" · ")}</div>
                 <div class="d-flex justify-content-between gap-2 align-items-center mt-3"><span class="product-price mono">${currency.format(p.price)}</span><span class="product-meta mono">${p.on_hand} left</span></div>
               </article>`;
           })
@@ -758,10 +751,10 @@ async function bindPrescriptions() {
         : "";
     return `
       <article class="queue-card p-3">
-        <div class="d-flex justify-content-between gap-2 mb-2"><span class="queue-card-id">${rx.code}</span><span class="queue-card-id">${timeAgo(rx.created_at)}</span></div>
-        <div class="queue-card-title">${rx.patient.name}</div>
-        <div class="queue-card-meta mt-1">${rx.medication.name} ${rx.medication.strength || ""} · <span class="mono">${rx.quantity} ${rx.unit || ""}</span></div>
-        <div class="queue-card-footer mt-3"><span class="small text-body-secondary">${rx.prescriber}</span>${flagBadge}</div>
+        <div class="d-flex justify-content-between gap-2 mb-2"><span class="queue-card-id">${esc(rx.code)}</span><span class="queue-card-id">${timeAgo(rx.created_at)}</span></div>
+        <div class="queue-card-title">${esc(rx.patient.name)}</div>
+        <div class="queue-card-meta mt-1">${esc(rx.medication.name)} ${esc(rx.medication.strength || "")} · <span class="mono">${rx.quantity} ${esc(rx.unit || "")}</span></div>
+        <div class="queue-card-footer mt-3"><span class="small text-body-secondary">${esc(rx.prescriber)}</span>${flagBadge}</div>
         <div class="d-flex flex-column align-items-start">${advanceBtn}${voidBtn}</div>
       </article>`;
   };
@@ -963,22 +956,18 @@ async function bindPatients() {
       selectedId = visible.length ? visible[0].id : null;
     }
 
-    tbody.innerHTML = visible.length
-      ? visible
-          .map((p) => {
-            const active = p.id === selectedId ? "table-active" : "";
-            return `
-              <tr data-patient-row data-id="${p.id}" class="${active}" role="button" tabindex="0">
-                <td><div class="fw-semibold">${p.name}</div></td>
-                <td class="mono text-body-secondary">${p.code}</td>
-                <td class="mono text-body-secondary">${formatDate(p.dob)}</td>
-                <td>${p.plan || "—"}</td>
-                <td class="text-end mono">${p.active ?? "—"}</td>
-                <td class="mono text-body-secondary">${formatDate(p.last_visit)}</td>
-              </tr>`;
-          })
-          .join("")
-      : `<tr><td colspan="6">${placeholder("No patients match your search.")}</td></tr>`;
+    renderTableBody(tbody, visible, (p) => {
+      const active = p.id === selectedId ? "table-active" : "";
+      return `
+        <tr data-patient-row data-id="${p.id}" class="${active}" role="button" tabindex="0">
+          <td><div class="fw-semibold">${esc(p.name)}</div></td>
+          <td class="mono text-body-secondary">${esc(p.code)}</td>
+          <td class="mono text-body-secondary">${formatDate(p.dob)}</td>
+          <td>${esc(p.plan || "—")}</td>
+          <td class="text-end mono">${p.active ?? "—"}</td>
+          <td class="mono text-body-secondary">${formatDate(p.last_visit)}</td>
+        </tr>`;
+    }, { placeholderMessage: "No patients match your search." });
 
     tbody.querySelectorAll("[data-patient-row]").forEach((row) => {
       const select = () => {
@@ -1001,13 +990,13 @@ async function bindPatients() {
   };
 
   const load = async () => {
-    tbody.innerHTML = `<tr><td colspan="6">${placeholder("Loading patients…")}</td></tr>`;
+    renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading patients…" });
     try {
       const result = await api.patients();
       patients = result.data;
       render();
     } catch (error) {
-      tbody.innerHTML = `<tr><td colspan="6">${placeholder(reportError(error), "error")}</td></tr>`;
+      renderTableBody(tbody, [], null, { error: reportError(error) });
     }
   };
 
@@ -1139,7 +1128,7 @@ async function bindOrders() {
           .map(
             (item) => `
             <div class="detail-row">
-              <span class="detail-row-label">${item.medication_name}</span>
+              <span class="detail-row-label">${esc(item.medication_name)}</span>
               <span class="detail-row-value mono">${item.units} × ${currency.format(item.unit_cost)}</span>
             </div>`,
           )
@@ -1179,23 +1168,19 @@ async function bindOrders() {
       selectedId = orders.length ? orders[0].id : null;
     }
 
-    tbody.innerHTML = orders.length
-      ? orders
-          .map((o) => {
-            const active = o.id === selectedId ? "table-active" : "";
-            return `
-              <tr data-order-row data-id="${o.id}" class="${active}" role="button" tabindex="0">
-                <td class="mono fw-semibold">${o.code}</td>
-                <td>${o.supplier.name}</td>
-                <td class="text-end mono">${o.item_count}</td>
-                <td class="text-end mono">${o.total_units}</td>
-                <td class="mono text-body-secondary">${formatDate(o.expected_at)}</td>
-                <td>${statusBadge(o.state, PO_STATE_LABEL[o.state] || o.state)}</td>
-                <td class="text-end mono">${currency.format(o.total_cost)}</td>
-              </tr>`;
-          })
-          .join("")
-      : `<tr><td colspan="7">${placeholder("No purchase orders yet.")}</td></tr>`;
+    renderTableBody(tbody, orders, (o) => {
+      const active = o.id === selectedId ? "table-active" : "";
+      return `
+        <tr data-order-row data-id="${o.id}" class="${active}" role="button" tabindex="0">
+          <td class="mono fw-semibold">${esc(o.code)}</td>
+          <td>${esc(o.supplier.name)}</td>
+          <td class="text-end mono">${o.item_count}</td>
+          <td class="text-end mono">${o.total_units}</td>
+          <td class="mono text-body-secondary">${formatDate(o.expected_at)}</td>
+          <td>${statusBadge(o.state, PO_STATE_LABEL[o.state] || o.state)}</td>
+          <td class="text-end mono">${currency.format(o.total_cost)}</td>
+        </tr>`;
+    }, { placeholderMessage: "No purchase orders yet." });
 
     tbody.querySelectorAll("[data-order-row]").forEach((row) => {
       const select = () => {
@@ -1225,7 +1210,7 @@ async function bindOrders() {
       const summary = await api.dashboard();
       const names = (summary.low_stock || []).map((m) => m.name);
       banner.innerHTML = names.length
-        ? `<strong>${names.length} item${names.length === 1 ? " is" : "s are"} at or below the reorder point.</strong><p class="mono">${names.join(" · ")}</p>`
+        ? `<strong>${names.length} item${names.length === 1 ? " is" : "s are"} at or below the reorder point.</strong><p class="mono">${names.map(esc).join(" · ")}</p>`
         : `<strong>All stock is above the reorder point.</strong>`;
     } catch {
       // banner is non-critical
@@ -1233,13 +1218,13 @@ async function bindOrders() {
   };
 
   const load = async () => {
-    tbody.innerHTML = `<tr><td colspan="7">${placeholder("Loading orders…")}</td></tr>`;
+    renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading orders…" });
     try {
       const result = await api.purchaseOrders();
       orders = result.data;
       render();
     } catch (error) {
-      tbody.innerHTML = `<tr><td colspan="7">${placeholder(reportError(error), "error")}</td></tr>`;
+      renderTableBody(tbody, [], null, { error: reportError(error) });
     }
     await loadBanner();
   };
@@ -1250,10 +1235,11 @@ async function bindOrders() {
     let suppliers;
     let medications;
     try {
-      const [suppliers, medicationsResult] = await Promise.all([
+      const [suppliersResult, medicationsResult] = await Promise.all([
         api.suppliers(),
         api.medications(),
       ]);
+      suppliers = suppliersResult;
       medications = medicationsResult.data;
     } catch (error) {
       reportError(error);
@@ -1336,38 +1322,33 @@ async function bindStockMovements() {
     return;
   }
 
-  tbody.innerHTML = `<tr><td colspan="5">${placeholder("Loading stock movements…")}</td></tr>`;
+  renderTableBody(tbody, [], null, { loading: true, placeholderMessage: "Loading stock movements…" });
 
   try {
     const movements = await api.stockMovements();
 
-    tbody.innerHTML = movements.length
-      ? movements
-          .map(
-            (item) => `
-            <tr>
-              <td>
-                <div class="fw-semibold">${item.medication_name}</div>
-                <div class="small text-body-secondary">Medication #${item.medication_id}</div>
-              </td>
-              <td class="mono text-body-secondary">${item.sku}</td>
-              <td class="text-end mono ${item.delta > 0 ? "text-success" : "text-danger"}">
-                ${item.delta > 0 ? "+" : ""}${item.delta}
-              </td>
-              <td>${item.reason || "—"}</td>
-              <td class="mono text-body-secondary">
-  ${new Date(item.created_at).toLocaleString("en-US", {
-    dateStyle: "short",
-    timeStyle: "short",
-  })}
-</td>
-            </tr>
-          `,
-          )
-          .join("")
-      : `<tr><td colspan="5">${placeholder("No stock movements recorded yet.")}</td></tr>`;
+    renderTableBody(tbody, movements, (item) => {
+      const formattedDate = new Date(item.created_at).toLocaleString("en-US", {
+        dateStyle: "short",
+        timeStyle: "short",
+      });
+      return `
+        <tr>
+          <td>
+            <div class="fw-semibold">${esc(item.medication_name)}</div>
+            <div class="small text-body-secondary">Medication #${item.medication_id}</div>
+          </td>
+          <td class="mono text-body-secondary">${esc(item.sku)}</td>
+          <td class="text-end mono ${item.delta > 0 ? "text-success" : "text-danger"}">
+            ${item.delta > 0 ? "+" : ""}${item.delta}
+          </td>
+          <td>${esc(item.reason || "—")}</td>
+          <td class="mono text-body-secondary">${esc(formattedDate)}</td>
+        </tr>
+      `;
+    }, { placeholderMessage: "No stock movements recorded yet." });
   } catch (error) {
-    tbody.innerHTML = `<tr><td colspan="5">${placeholder(reportError(error), "error")}</td></tr>`;
+    renderTableBody(tbody, [], null, { error: reportError(error) });
   }
 }
 
