@@ -5,6 +5,7 @@ import {
   formatDate,
   initials,
   toneClass,
+  mountOfflineBanner,
 } from "./api.js";
 import { openForm, placeholder, statusBadge, toast } from "./ui.js";
 
@@ -1374,6 +1375,8 @@ async function bindStockMovements() {
 // ---------------------------------------------------------------------------
 
 export function bindPageBehaviors(pageId) {
+  mountOfflineBanner();
+
   const binders = {
     dashboard: bindDashboard,
     inventory: bindInventory,
