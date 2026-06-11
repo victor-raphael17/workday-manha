@@ -38,7 +38,7 @@
 ### FRONTEND
 - [x] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
 - [ ] Remover wrapper `api.sales` — `frontend/assets/js/api.js:163`
-- [ V ] **CSS potencialmente não usado** — `frontend/assets/css/app.css`
+- [x] **CSS potencialmente não usado** — `frontend/assets/css/app.css`
 - [ ] **Implementar a busca global da topbar** — `frontend/assets/js/shell.js:64`
 - [x] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
 - [ ] **Feedback de offline / retry de rede** — `frontend/assets/js/api.js:107`

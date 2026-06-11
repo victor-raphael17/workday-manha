@@ -30,7 +30,7 @@ final class AuthController extends Controller
             'password' => 'required|string|max:200',
         ]);
 
-        return Response::ok($this->auth->login($data['email'], $data['password']));
+        return Response::ok($this->auth->login($data['email'], $data['password'], $request->ip));
     }
 
     /** GET /api/auth/me */

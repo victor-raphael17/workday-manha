@@ -32,4 +32,10 @@ return [
         'username' => Env::get('DB_USERNAME', 'ca_pharmacy'),
         'password' => Env::get('DB_PASSWORD', 'ca_pharmacy'),
     ],
+
+    'login_throttle' => [
+        'max_attempts'    => 5,
+        'decay_seconds'   => 60,
+        'lockout_seconds' => 60,  
+    ],
 ];

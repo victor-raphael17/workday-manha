@@ -80,6 +80,4 @@ return static function (Router $r): void {
         $r->get('/api/purchase-orders/{id}', [PurchaseOrderController::class, 'show']);
         $r->patch('/api/purchase-orders/{id}/state', [PurchaseOrderController::class, 'transition']);
     }); 
-
-    });
 };

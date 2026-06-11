@@ -48,6 +48,21 @@ CREATE INDEX sessions_token_idx ON sessions (token_hash);
 CREATE INDEX sessions_user_idx ON sessions (user_id);
 
 -- ---------------------------------------------------------------------------
+-- Login attempts (rate limiting / brute-force protection)
+-- Each row is a "bucket" — e.g. ip:1.2.3.4 or email:user@example.com — that
+-- counts failed logins within a rolling window and records a lockout
+-- expiry once the limit is hit.
+-- ---------------------------------------------------------------------------
+CREATE TABLE login_attempts (
+    identifier       VARCHAR(190) PRIMARY KEY,
+    attempts         INTEGER NOT NULL DEFAULT 0,
+    first_attempt_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    locked_until     TIMESTAMPTZ
+);
+
+CREATE INDEX login_attempts_locked_idx ON login_attempts (locked_until);
+
+-- ---------------------------------------------------------------------------
 -- Suppliers (who we buy stock from)
 -- ---------------------------------------------------------------------------
 CREATE TABLE suppliers (
