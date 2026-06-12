@@ -6,7 +6,7 @@
 
 import { toneClass } from "./api.js";
 
-function esc(str) {
+export function esc(str) {
   return String(str ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -196,8 +196,39 @@ export function openForm({ title, fields, submitLabel = "Save" }) {
   });
 }
 
-/** 
- * Renderiza controles de paginação em um container específico.
+/**
+ * Encapsulates reusable table body rendering logic.
+ * Manages UI states (loading, empty, error) and guarantees HTML table semantics.
+ *
+ * @param {HTMLTableSectionElement} tbody - Target <tbody> element.
+ * @param {Array} list - Array of data models.
+ * @param {Function} renderRowFn - Callback returning a table row template string (<tr>).
+ * @param {Object} options - State flags and messages ({ loading: boolean, error: string, placeholderMessage: string }).
+ */
+export function renderTableBody(tbody, list, renderRowFn, options = {}) {
+  if (!tbody) return;
+
+  if (options.error) {
+    tbody.innerHTML = `<tr><td colspan="100%">${placeholder(options.error, "error")}</td></tr>`;
+    return;
+  }
+
+  if (options.loading) {
+    const msg = options.placeholderMessage || "Loading data...";
+    tbody.innerHTML = `<tr><td colspan="100%">${placeholder(msg, "muted")}</td></tr>`;
+    return;
+  }
+
+  if (!list || list.length === 0) {
+    const msg = options.placeholderMessage || "No records found.";
+    tbody.innerHTML = `<tr><td colspan="100%">${placeholder(msg, "muted")}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(renderRowFn).join("");
+}
+
+/** * Renderiza controles de paginação em um container específico.
  * @param {HTMLElement} container - Elemento onde a paginação será injetada.
  * @param {number} currentPage - A página atual.
  * @param {number} totalPages - O total de páginas.
