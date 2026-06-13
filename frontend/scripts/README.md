@@ -11,6 +11,7 @@
 **What it does:** Analyzes unused CSS using PurgeCSS (dry-run, no modifications).
 
 **Usage:**
+
 ```bash
 npm run analyze:css
 # or manually
@@ -18,6 +19,7 @@ node scripts/analyze-css-usage.js
 ```
 
 **Output:**
+
 - `purgecss-report.css` — clean CSS (for review)
 - `assets/css/app.css.backup` — safety backup
 - Console stats (bytes, lines, % removable)
@@ -33,6 +35,7 @@ node scripts/analyze-css-usage.js
 **What it does:** Interactive 5-phase workflow to safely remove unused CSS.
 
 **Phases:**
+
 1. Setup dependencies
 2. Run PurgeCSS analysis
 3. Manual DevTools Coverage validation
@@ -40,11 +43,13 @@ node scripts/analyze-css-usage.js
 5. Apply, test, commit
 
 **Usage:**
+
 ```bash
 bash scripts/css-cleanup-checklist.sh
 ```
 
 **Features:**
+
 - ✅ Step-by-step guidance
 - ✅ Interactive prompts (yes/no questions)
 - ✅ Auto-opens browser for testing
@@ -54,6 +59,7 @@ bash scripts/css-cleanup-checklist.sh
 **Time:** ~40 minutes (interactive)
 
 **Requirements:**
+
 - Docker running
 - Backend stack available
 - npm dependencies installed
@@ -94,12 +100,12 @@ Scripts use `../purgecss.config.js` which scans:
 
 ```javascript
 content: [
-  './pages/**/*.html',              // All HTML pages
-  './assets/js/page-behaviors.js',  // Main JS templates
-  './assets/js/shell.js',           // Shell component
-  './assets/js/ui.js',              // UI utilities
-  './assets/js/**/*.js',            // Any other JS
-]
+  "./pages/**/*.html", // All HTML pages
+  "./assets/js/page-behaviors.js", // Main JS templates
+  "./assets/js/shell.js", // Shell component
+  "./assets/js/ui.js", // UI utilities
+  "./assets/js/**/*.js", // Any other JS
+];
 ```
 
 To modify what gets scanned, edit `purgecss.config.js`.
@@ -125,12 +131,14 @@ frontend/
 ## ⚠️ Safety First
 
 **Before running cleanup:**
+
 - [ ] Backup exists (`app.css.backup`)
 - [ ] PurgeCSS and DevTools agree on results
 - [ ] All 8 screens tested in DevTools Coverage
 - [ ] Bootstrap safelist preserved
 
 **If something breaks:**
+
 ```bash
 cp assets/css/app.css.backup assets/css/app.css
 docker compose up -d --build
@@ -188,17 +196,16 @@ To ensure scripts stay current:
 
 ## 🆘 Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| PurgeCSS not found | `npm install --save-dev purgecss` |
-| Script not executable | `chmod +x scripts/css-cleanup-checklist.sh` |
-| Coverage tool not opening | Manually open http://localhost:4173 + F12 |
-| CSS didn't change | Check file paths, permissions, backup location |
-| Stack won't rebuild | `docker compose down && docker compose up -d --build` |
+| Issue                     | Solution                                              |
+| ------------------------- | ----------------------------------------------------- |
+| PurgeCSS not found        | `npm install --save-dev purgecss`                     |
+| Script not executable     | `chmod +x scripts/css-cleanup-checklist.sh`           |
+| Coverage tool not opening | Manually open http://localhost:4173 + F12             |
+| CSS didn't change         | Check file paths, permissions, backup location        |
+| Stack won't rebuild       | `docker compose down && docker compose up -d --build` |
 
 See [`CSS_CLEANUP_FAQ.md`](../CSS_CLEANUP_FAQ.md) for more detailed troubleshooting.
 
 ---
 
 **Last updated:** 2026-06-09
-

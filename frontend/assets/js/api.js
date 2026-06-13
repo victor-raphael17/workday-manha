@@ -65,11 +65,10 @@ export const auth = {
     try {
       const parts = token.split(".");
 
-        
-        if (parts.length !== 3) {
-            console.log("Token não é JWT, ignorando verificação");
-            return false; 
-        }
+      if (parts.length !== 3) {
+        console.log("Token não é JWT, ignorando verificação");
+        return false;
+      }
 
       const payload = JSON.parse(atob(token.split(".")[1]));
       const now = Math.floor(Date.now() / 1000);
@@ -165,7 +164,9 @@ class ApiStatus extends EventTarget {
     const { path, options } = this._lastRequest;
     try {
       const result = await request(path, options);
-      this.dispatchEvent(new CustomEvent("retry-success", { detail: { path } }));
+      this.dispatchEvent(
+        new CustomEvent("retry-success", { detail: { path } })
+      );
       return result;
     } catch (err) {
       if (err instanceof ApiError && err.status === 0) {
@@ -173,7 +174,9 @@ class ApiStatus extends EventTarget {
       }
       // Reached the server this time: surface the (non-network) error to
       // the caller, but the API itself is back online.
-      this.dispatchEvent(new CustomEvent("retry-success", { detail: { path } }));
+      this.dispatchEvent(
+        new CustomEvent("retry-success", { detail: { path } })
+      );
       throw err;
     }
   }
@@ -257,7 +260,7 @@ async function request(path, { method = "GET", body, query } = {}) {
     try {
       response = await fetch(url, fetchOptions);
       break;
-    } catch{
+    } catch {
       // Only auto-retry idempotent GET requests; mutations are left for the
       // user to retry explicitly (e.g. via the offline banner) so we never
       // silently resubmit a write.
@@ -271,7 +274,7 @@ async function request(path, { method = "GET", body, query } = {}) {
       apiStatus._setOnline(false);
       throw new ApiError(
         0,
-        `Cannot reach the API at ${API_BASE}. Is it running?`,
+        `Cannot reach the API at ${API_BASE}. Is it running?`
       );
     }
   }
@@ -497,7 +500,12 @@ export function mountOfflineBanner() {
   button.addEventListener("click", async () => {
     button.disabled = true;
     button.textContent = "Tentando...";
-    const ok = await (apiStatus.canRetry ? apiStatus.retry().then(() => true, () => apiStatus.online) : pingApi());
+    const ok = await (apiStatus.canRetry
+      ? apiStatus.retry().then(
+          () => true,
+          () => apiStatus.online
+        )
+      : pingApi());
     if (!ok) {
       resetButton();
     }
