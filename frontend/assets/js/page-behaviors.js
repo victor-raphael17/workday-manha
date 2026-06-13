@@ -94,7 +94,7 @@ async function bindDashboard() {
     }
     chart.innerHTML = week.length
       ? week
-          .map((d, i) => {
+          .map((d) => {
             const height = Math.max(6, Math.round((d.total / max) * 100));
             const peak = d.total === max && total > 0 ? "sales-bar-peak" : "";
             const label = new Date(`${d.date}T00:00:00`).toLocaleDateString(

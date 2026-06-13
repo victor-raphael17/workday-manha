@@ -257,7 +257,7 @@ async function request(path, { method = "GET", body, query } = {}) {
     try {
       response = await fetch(url, fetchOptions);
       break;
-    } catch (networkError) {
+    } catch{
       // Only auto-retry idempotent GET requests; mutations are left for the
       // user to retry explicitly (e.g. via the offline banner) so we never
       // silently resubmit a write.

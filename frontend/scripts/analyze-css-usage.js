@@ -10,7 +10,7 @@ async function analyzeCSS() {
 
     try {
       require.resolve('purgecss');
-    } catch (e) {
+    } catch{
       console.log('⚠️  PurgeCSS não instalado. Instalando...\n');
       execSync('npm install --save-dev purgecss', { stdio: 'inherit' });
     }

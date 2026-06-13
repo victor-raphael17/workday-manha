@@ -9,7 +9,11 @@
     "analyze:css": "node scripts/analyze-css-usage.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check" 
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
