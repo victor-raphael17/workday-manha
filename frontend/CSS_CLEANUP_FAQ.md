@@ -7,9 +7,11 @@
 ## ❓ Perguntas Frequentes
 
 ### P1: "Quanto tempo leva para fazer a análise completa?"
+
 **R:** ~40 minutos total:
+
 - Setup: 5 min
-- PurgeCSS: 5 min  
+- PurgeCSS: 5 min
 - DevTools Coverage: 20 min (depende de quantas telas você testar)
 - Aplicação + testes: 10 min
 
@@ -18,9 +20,11 @@
 ---
 
 ### P2: "Posso rodar PurgeCSS sem testar em DevTools Coverage?"
+
 **R:** ⚠️ **Não recomendo!**
 
 **Por quê:**
+
 - PurgeCSS escaneia arquivos (estático)
 - DevTools vê o que é REALMENTE usado no navegador (dinâmico)
 - Classes geradas em runtime (ex: `status-${state}`) podem não aparecer no scan estático
@@ -30,9 +34,11 @@
 ---
 
 ### P3: "PurgeCSS achou 20% de CSS não utilizado, mas DevTools mostrou 5%. Por quê?"
+
 **R:** Você não testou todas as telas em DevTools!
 
 **Checklist:**
+
 - [ ] Login?
 - [ ] Dashboard?
 - [ ] Inventário (com search)?
@@ -48,6 +54,7 @@
 ---
 
 ### P4: "Removi CSS e agora uma página está quebrada. Como faço rollback?"
+
 **R:** Super rápido (30 segundos):
 
 ```bash
@@ -68,16 +75,18 @@ diff -u frontend/assets/css/app.css.backup frontend/purgecss-report.css
 ---
 
 ### P5: "PurgeCSS removeu classe Bootstrap. Como corrijo?"
+
 **R:** Adicione ao `safelist` em `purgecss.config.js`:
 
 ```javascript
 safelist: [
-  /^btn-success$/,    // Adicionar a classe específica
-  /^table-/,          // Ou regex para grupo
-]
+  /^btn-success$/, // Adicionar a classe específica
+  /^table-/, // Ou regex para grupo
+];
 ```
 
 Depois re-rode:
+
 ```bash
 npm run analyze:css
 ```
@@ -87,6 +96,7 @@ npm run analyze:css
 ---
 
 ### P6: "Como sei se um CSS foi realmente removido?"
+
 **R:** Compare os arquivos:
 
 ```bash
@@ -103,6 +113,7 @@ ls -lh frontend/assets/css/app.css.backup frontend/assets/css/app.css
 ---
 
 ### P7: "Preciso fazer isso toda semana?"
+
 **R:** Não, depende:
 
 - **Quarterly (a cada 3 meses):** Rotina normal. JS cresce, CSS incha, revisar.
@@ -114,19 +125,22 @@ ls -lh frontend/assets/css/app.css.backup frontend/assets/css/app.css
 ---
 
 ### P8: "PurgeCSS tá lento. Por quê?"
+
 **R:** Possível que o `content` array está scaneando muitos arquivos.
 
 **Solução:**
+
 ```javascript
 // purgecss.config.js
 content: [
-  './pages/**/*.html',      // Específico
-  './assets/js/**/*.js',    // Evite muitos **/
+  "./pages/**/*.html", // Específico
+  "./assets/js/**/*.js", // Evite muitos **/
   // NÃO faça: './**/*.js'  (muito lento)
-]
+];
 ```
 
 Se ainda lento, verifique:
+
 ```bash
 # Quantos arquivos está scaneando?
 find frontend/pages -name "*.html" | wc -l
@@ -136,12 +150,15 @@ find frontend/assets/js -name "*.js" | wc -l
 ---
 
 ### P9: "Backup foi deletado acidentalmente. E agora?"
+
 **R:** Se ainda não commitou:
+
 ```bash
 git checkout HEAD -- frontend/assets/css/app.css
 ```
 
 Se já commitou:
+
 ```bash
 git log --oneline frontend/assets/css/app.css | head -5
 git revert <commit-hash>
@@ -150,6 +167,7 @@ git revert <commit-hash>
 ---
 
 ### P10: "Posso fazer CSS cleanup em produção?"
+
 **R:** ✅ Sim, mas com cuidado:
 
 1. Fazer em staging PRIMEIRO
@@ -159,6 +177,7 @@ git revert <commit-hash>
 5. Ter rollback plan pronto
 
 **Nunca** faça CSS cleanup sem:
+
 - [ ] Backup
 - [ ] Teste completo
 - [ ] Rollback plan
@@ -170,21 +189,24 @@ git revert <commit-hash>
 ### Problema 1: "Modal não abre depois de remover CSS"
 
 **Sintomas:**
+
 - Modal não aparece ao clicar
 - Ou aparece mas sem estilos
 
 **Causa provável:**
+
 - Classe `.modal` ou `.fade` foi removida
 - Classe `.show` foi removida
 
 **Solução:**
+
 ```javascript
 // purgecss.config.js
 safelist: [
   /^modal-/,
   /^fade/,
-  /^show$/,  // ← Adicionar isso
-]
+  /^show$/, // ← Adicionar isso
+];
 ```
 
 Re-rode: `npm run analyze:css`
@@ -194,18 +216,18 @@ Re-rode: `npm run analyze:css`
 ### Problema 2: "Formulário com validação está feio"
 
 **Sintomas:**
+
 - Inputs com `invalid` class parecem iguais aos normais
 - Mensagens de erro desaparecem
 
 **Causa provável:**
+
 - Classes `.is-invalid` ou `.invalid-feedback` foram removidas
 
 **Solução:**
+
 ```javascript
-safelist: [
-  /^is-/,
-  /^invalid/,
-]
+safelist: [/^is-/, /^invalid/];
 ```
 
 Re-rode: `npm run analyze:css`
@@ -215,15 +237,19 @@ Re-rode: `npm run analyze:css`
 ### Problema 3: "DevTools Coverage não mostra nada"
 
 **Sintomas:**
+
 - Aba Coverage vazia
 - "No CSS coverage" mensagem
 
 **Causa provável:**
+
 - DevTools não encontrou arquivos CSS
 - Ou CSS foi carregado de CDN
 
 **Solução:**
+
 1. Verificar que CSS está sendo carregado:
+
    ```bash
    # DevTools → Network → filtre "css"
    # Veja se app.css aparece
@@ -238,12 +264,14 @@ Re-rode: `npm run analyze:css`
 ### Problema 4: "Erro: PurgeCSS não encontrado"
 
 **Sintomas:**
+
 ```bash
 npm run analyze:css
 # Error: Cannot find module 'purgecss'
 ```
 
 **Solução:**
+
 ```bash
 cd frontend
 npm install --save-dev purgecss postcss
@@ -257,14 +285,17 @@ npm run analyze:css
 ### Problema 5: "CSS file não foi modificado após copiar relatório"
 
 **Sintomas:**
+
 - Rodei `cp purgecss-report.css assets/css/app.css`
 - Mas `app.css` não mudou
 
 **Causa provável:**
+
 - Permissões de arquivo
 - Ou caminho errado
 
 **Solução:**
+
 ```bash
 # Verificar caminho correto
 ls -la frontend/purgecss-report.css
@@ -285,20 +316,25 @@ cat purgecss-report.css > assets/css/app.css
 ### Problema 6: "Telas renderizam diferente em staging vs produção após cleanup"
 
 **Sintomas:**
+
 - Funciona em localhost
 - Mas quebra em staging ou produção
 
 **Causa provável:**
+
 - Cache do navegador ou CDN
 - Ou CSS minificado vs não-minificado
 
 **Solução:**
+
 1. Limpar cache:
+
    ```bash
    # DevTools → Network → "Disable cache"
    ```
 
 2. Hard refresh:
+
    ```
    Cmd+Shift+R (Mac) ou Ctrl+Shift+R (Windows/Linux)
    ```
@@ -314,14 +350,17 @@ cat purgecss-report.css > assets/css/app.css
 ### Problema 7: "Relatório diz que removeu 30%, mas arquivo ficou quase igual"
 
 **Sintomas:**
+
 - `purgecss-report.css` é menor que `app.css`
 - Mas só 2-3% de diferença
 
 **Causa provável:**
+
 - % é de "regras", não de "bytes"
 - Ou muitos comentários aumentam o tamanho original
 
 **Solução:**
+
 ```bash
 # Ver em bytes
 du -h frontend/assets/css/app.css
@@ -369,17 +408,16 @@ Se ainda tiver dúvida após checklist acima:
 
 ## 🎯 Referência Rápida
 
-| Situação | Comando |
-|----------|---------|
-| Começar análise | `cd frontend && npm run analyze:css` |
-| Rodar guia interativo | `bash frontend/scripts/css-cleanup-checklist.sh` |
-| Aplicar mudança | `cp frontend/purgecss-report.css frontend/assets/css/app.css` |
-| Rollback | `cp frontend/assets/css/app.css.backup frontend/assets/css/app.css` |
+| Situação               | Comando                                                                |
+| ---------------------- | ---------------------------------------------------------------------- |
+| Começar análise        | `cd frontend && npm run analyze:css`                                   |
+| Rodar guia interativo  | `bash frontend/scripts/css-cleanup-checklist.sh`                       |
+| Aplicar mudança        | `cp frontend/purgecss-report.css frontend/assets/css/app.css`          |
+| Rollback               | `cp frontend/assets/css/app.css.backup frontend/assets/css/app.css`    |
 | Ver o que foi removido | `diff frontend/assets/css/app.css.backup frontend/purgecss-report.css` |
-| Contar linhas | `wc -l frontend/assets/css/app.css*` |
-| Confirmar CSS válido | `npx postcss --syntax css frontend/assets/css/app.css` |
+| Contar linhas          | `wc -l frontend/assets/css/app.css*`                                   |
+| Confirmar CSS válido   | `npx postcss --syntax css frontend/assets/css/app.css`                 |
 
 ---
 
 **Última atualização:** 2026-06-09
-

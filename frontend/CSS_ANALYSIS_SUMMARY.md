@@ -25,6 +25,7 @@ cd frontend && npm install && bash scripts/css-cleanup-checklist.sh
 ```
 
 **O que faz:** Guia interativo que:
+
 1. ✅ Roda PurgeCSS em dry-run
 2. ✅ Pede para validar com DevTools Coverage (no navegador)
 3. ✅ Compara os dois métodos
@@ -40,6 +41,7 @@ cd frontend && npm install && bash scripts/css-cleanup-checklist.sh
 Ler: [`CSS_PURGE_GUIDE.md`](../CSS_PURGE_GUIDE.md)
 
 **Contém:**
+
 - Configuração detalhada do PurgeCSS
 - Como usar DevTools Coverage passo a passo
 - Checklist de segurança ANTES de remover
@@ -124,6 +126,7 @@ frontend/
 ## 🚨 Alertas de Segurança
 
 ### ❌ NÃO FAÇA ISSO:
+
 ```bash
 # ❌ Não rode sem validação cruzada
 npm run analyze:css && cp purgecss-report.css assets/css/app.css
@@ -136,6 +139,7 @@ npm run analyze:css && cp purgecss-report.css assets/css/app.css
 ```
 
 ### ✅ SEMPRE FAÇA ISSO:
+
 ```bash
 # ✅ Validação cruzada
 npm run analyze:css   # PurgeCSS
@@ -158,11 +162,13 @@ cp assets/css/app.css.backup assets/css/app.css
 ## 🎯 Resultado Esperado
 
 **Antes:**
+
 ```
 frontend/assets/css/app.css → 5000 bytes → muitos CSS não usados
 ```
 
 **Depois:**
+
 ```
 frontend/assets/css/app.css → 4200 bytes → apenas CSS realmente usado
 ```

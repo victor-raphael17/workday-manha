@@ -4,13 +4,13 @@ import { defineConfig } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier";
 
 export default defineConfig([
-  { 
-    files: ["assets/js/**/*.js"], 
-    plugins: { js }, 
-    extends: [js.configs.recommended, eslintConfigPrettier], 
-    languageOptions: { 
-      globals: globals.browser 
-    } 
+  {
+    files: ["assets/js/**/*.js"],
+    plugins: { js },
+    extends: [js.configs.recommended, eslintConfigPrettier],
+    languageOptions: {
+      globals: globals.browser,
+    },
   },
 
   {
@@ -24,5 +24,5 @@ export default defineConfig([
     languageOptions: {
       globals: globals.node,
     },
-  }
+  },
 ]);

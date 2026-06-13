@@ -22,6 +22,7 @@ npm run analyze:css
 ## 📋 What Each Command Does
 
 ### `npm run analyze:css`
+
 - ✅ Runs PurgeCSS in **dry-run mode** (no changes)
 - ✅ Analyzes which CSS rules are unused
 - ✅ Creates `purgecss-report.css` (clean version for review)
@@ -29,6 +30,7 @@ npm run analyze:css
 - ✅ Shows statistics (how much % could be removed)
 
 **Output:**
+
 ```
 📊 RELATÓRIO DE ANÁLISE CSS - DRY-RUN
    • CSS original:       5000 bytes
@@ -39,6 +41,7 @@ npm run analyze:css
 ```
 
 ### `bash scripts/css-cleanup-checklist.sh`
+
 - ✅ Runs interactive **5-phase workflow**
 - ✅ PurgeCSS dry-run (Phase 1-2)
 - ✅ Manual DevTools Coverage validation (Phase 3)
@@ -46,6 +49,7 @@ npm run analyze:css
 - ✅ Apply, test, commit (Phase 5-6)
 
 **Interactive prompts guide you:**
+
 ```
 1. Install dependencies?
 2. Review PurgeCSS results?
@@ -59,6 +63,7 @@ npm run analyze:css
 ## 🔍 Two Methods in Parallel
 
 ### Method 1: PurgeCSS (Automated)
+
 ```bash
 npm run analyze:css
 # ✓ Static analysis of HTML + JS
@@ -69,6 +74,7 @@ npm run analyze:css
 **Good for:** Quick scan, baseline understanding
 
 ### Method 2: DevTools Coverage (Manual)
+
 ```
 1. Open http://localhost:4173 (browser)
 2. F12 → Coverage tab → ⏺️ Record
@@ -141,19 +147,20 @@ The `purgecss.config.js` includes a **safelist** of classes that should NOT be r
 
 ```javascript
 safelist: [
-  /^modal-/,        // Bootstrap modals
-  /^collapse/,      // Bootstrap collapse
-  /^show$/,         // Bootstrap show state
-  /^active$/,       // Active states
-  /^d-/,            // Display utilities
-  /^text-/,         // Text utilities
-  /^bg-/,           // Background utilities
-  /^status-/,       // Custom: status badges
-  /^tone-/,         // Custom: tone classes
-]
+  /^modal-/, // Bootstrap modals
+  /^collapse/, // Bootstrap collapse
+  /^show$/, // Bootstrap show state
+  /^active$/, // Active states
+  /^d-/, // Display utilities
+  /^text-/, // Text utilities
+  /^bg-/, // Background utilities
+  /^status-/, // Custom: status badges
+  /^tone-/, // Custom: tone classes
+];
 ```
 
 **If you see CSS removed that shouldn't be:**
+
 1. Add it to `safelist` in `purgecss.config.js`
 2. Re-run `npm run analyze:css`
 3. Verify again
@@ -215,4 +222,3 @@ git commit -m "Remove unused CSS"
 - **CSS disappeared on one page?** → Add class to `safelist`
 - **DevTools shows different results?** → Make sure you tested ALL screens
 - **Something broke?** → `cp assets/css/app.css.backup assets/css/app.css` + rebuild
-
