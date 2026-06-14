@@ -33,25 +33,25 @@
 ## GRUPO FABIO:
 
 ### TECH LEAD
-- [ ] **Pipeline de CI (build + lint + testes)**
+- [x] **Pipeline de CI (build + lint + testes)** (Fabio)
 
 ### FRONTEND
-- [x] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140`
-- [x] Remover wrapper `api.sales` — `frontend/assets/js/api.js:163`
-- [x] **CSS potencialmente não usado** — `frontend/assets/css/app.css`
+- [x] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140` (Matheus P)
+- [x] Remover wrapper `api.sales` — `frontend/assets/js/api.js:163` (Paulo S.)
+- [x] **CSS potencialmente não usado** — `frontend/assets/css/app.css` (Paulo S.)
 - [ ] **Implementar a busca global da topbar** — `frontend/assets/js/shell.js:64`
-- [x] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`
-- [ ] **Feedback de offline / retry de rede** — `frontend/assets/js/api.js:107`
-- [ ] **`aria-live` nos toasts e estados** — `frontend/assets/js/ui.js:11`
-- [ ] **Extrair helper de render de tabela reutilizável** — `frontend/assets/js/page-behaviors.js`
-- [x] **Adicionar ESLint + Prettier** — `frontend/package.json`
+- [x] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`  (Matheus P)
+- [x] **Feedback de offline / retry de rede** — `frontend/assets/js/api.js:107` (Victor)
+- [x] **`aria-live` nos toasts e estados** — `frontend/assets/js/ui.js:11`      (Paulo S.)
+- [x] **Extrair helper de render de tabela reutilizável** — `frontend/assets/js/page-behaviors.js` (Paulo S.)
+- [x] **Adicionar ESLint + Prettier** — `frontend/package.json` (Paulo S. e Fabio)
 
 ### BACKEND
-- [x] Remover `Env::int()` — `backend/src/Support/Env.php:37`
-- [x] Endpoints sem consumidor de UI - `GET /api/medications/{id}` — `backend/routes/api.php`
-- [ ] Endpoints sem consumidor de UI - `GET /api/medications/low-stock` e `GET /api/medications/expiring` — `backend/routes/api.php`
-- [ ] Endpoints sem consumidor de UI - `GET /api/auth/me` — `backend/routes/api.php`
-- [ ] CRUD de fornecedores (store/show/update/delete) — `backend/routes/api.php`
-- [ ] **Rate limiting / proteção contra brute-force no login** —
-- [x] **Logging estruturado de erros** — `backend/src/Core/App.php:58`
-- [x] **Restringir CORS por configuração** — `backend/src/Core/App.php:79`
+- [x] Remover `Env::int()` — `backend/src/Support/Env.php:37` (Matheus P)
+- [x] Endpoints sem consumidor de UI - `GET /api/medications/{id}` — `backend/routes/api.php` (Paulo S.)
+- [x] Endpoints sem consumidor de UI - `GET /api/medications/low-stock` e `GET /api/medications/expiring` (Fabio)
+- [x] Endpoints sem consumidor de UI - `GET /api/auth/me` — `backend/routes/api.php` (Fabio)
+- [x] CRUD de fornecedores (store/show/update/delete) — `backend/routes/api.php`  (Victor)
+- [x] **Rate limiting / proteção contra brute-force no login** —  (Victor)
+- [x] **Logging estruturado de erros** — `backend/src/Core/App.php:58` (Paulo S.)
+- [x] **Restringir CORS por configuração** — `backend/src/Core/App.php:79` (Paulo S.)
