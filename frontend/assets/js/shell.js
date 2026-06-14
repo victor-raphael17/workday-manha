@@ -74,11 +74,6 @@ export function renderShell(pageId) {
     <button class="topbar-menu" id="mobileNavToggle" type="button" aria-label="Open navigation">
       <i data-lucide="menu"></i>
     </button>
-    <label class="topbar-search mb-0">
-      <i data-lucide="search"></i>
-      <input type="search" placeholder="Search medications, patients, scripts..." aria-label="Search">
-      <kbd>/</kbd>
-    </label>
     <div class="topbar-actions">
       <div class="topbar-branch">
         <i data-lucide="store"></i>
@@ -141,20 +136,9 @@ export function bindShellEvents() {
   scrim?.addEventListener("click", closeNav);
   links.forEach((link) => link.addEventListener("click", closeNav));
 
-  const searchInput = document.querySelector(".topbar-search input");
-
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeNav();
-    }
-
-    const target = event.target;
-    const isTyping =
-      target instanceof HTMLElement &&
-      ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
-    if (event.key === "/" && !isTyping && searchInput) {
-      event.preventDefault();
-      searchInput.focus();
     }
   });
 }

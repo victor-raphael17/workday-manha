@@ -39,7 +39,7 @@
 - [x] Remover wrapper `api.medication` — `frontend/assets/js/api.js:140` (Matheus P)
 - [x] Remover wrapper `api.sales` — `frontend/assets/js/api.js:163` (Paulo S.)
 - [x] **CSS potencialmente não usado** — `frontend/assets/css/app.css` (Paulo S.)
-- [ ] **Implementar a busca global da topbar** — `frontend/assets/js/shell.js:64`
+- [x] **Implementar a busca global da topbar** — `frontend/assets/js/shell.js:64` (Fabio)
 - [x] **Paginação nas listagens** — `frontend/assets/js/page-behaviors.js`  (Matheus P)
 - [x] **Feedback de offline / retry de rede** — `frontend/assets/js/api.js:107` (Victor)
 - [x] **`aria-live` nos toasts e estados** — `frontend/assets/js/ui.js:11`      (Paulo S.)

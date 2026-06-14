@@ -1043,7 +1043,6 @@ async function bindPatients() {
       };
 
       row.addEventListener("click", select);
-
     });
 
     renderDetail(selectedId);
