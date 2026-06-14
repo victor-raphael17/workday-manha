@@ -79,5 +79,9 @@ return static function (Router $r): void {
         $r->post('/api/purchase-orders', [PurchaseOrderController::class, 'store']);
         $r->get('/api/purchase-orders/{id}', [PurchaseOrderController::class, 'show']);
         $r->patch('/api/purchase-orders/{id}/state', [PurchaseOrderController::class, 'transition']);
+
+        // Recovered after deletion
+        // Only one sale route is used
+        $r->post('/api/sales', [SaleController::class, 'store']);
     });
 };
