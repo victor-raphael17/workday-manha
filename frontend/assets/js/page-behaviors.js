@@ -1042,12 +1042,7 @@ async function bindPatients() {
         renderDetail(selectedId);
       };
 
-      row.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          select();
-        }
-      });
+      row.addEventListener("click", select);
     });
 
     renderDetail(selectedId);
