@@ -19,4 +19,13 @@ final class SupplierRepository extends Repository
         return $this->fetchAll('SELECT ' . self::COLUMNS . ' FROM suppliers ORDER BY name ASC');
     }
 
+    public function find(int $id): ?array
+    {
+        return $this->fetchOne(
+            'SELECT id, name, contact_email, phone, created_at, updated_at
+            FROM suppliers
+            WHERE id = :id',
+            ['id' => $id]
+        ) ?: null;
+    }
 }

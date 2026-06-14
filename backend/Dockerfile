@@ -3,7 +3,7 @@ FROM php:8.3-apache
 
 # PostgreSQL PDO driver + build deps
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libpq-dev unzip \
+    && apt-get install -y --no-install-recommends libpq-dev unzip jq curl\
     && docker-php-ext-install pdo pdo_pgsql \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -19,11 +19,11 @@ WORKDIR /var/www/html
 
 # Install (generate the autoloader) using only the manifest first, for caching
 COPY composer.json composer.lock* ./
-RUN composer install --no-dev --no-interaction --no-progress --no-autoloader
+RUN composer install --no-interaction --no-progress --no-autoloader
 
 # Application code
 COPY . .
-RUN composer dump-autoload --optimize --no-dev \
+RUN composer dump-autoload --optimize \
     && chown -R www-data:www-data /var/www/html
 
 EXPOSE 80

@@ -31,6 +31,10 @@ return static function (Router $r): void {
     // Protegidas — exige token válido em todas abaixo
     $r->middleware('auth', function (Router $r): void {
 
+        //Recovered from wrong merge
+        $r->get('/api/auth/me', [AuthController::class, 'me']);
+        $r->post('/api/auth/logout', [AuthController::class, 'logout']);
+
         // Stock Movements
         $r->get('/api/stock-movements', [StockMovementController::class, 'index']);
 
