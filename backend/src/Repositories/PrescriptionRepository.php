@@ -21,7 +21,7 @@ final class PrescriptionRepository extends Repository
         JOIN medications m ON m.id = p.medication_id';
 
     /**
-     * @param array{state?: string, patient_id?: int} $filters
+     * @param array{state?: string, patient_id?: int, search?: string} $filters
      * @return array<int, array<string, mixed>>
      */
     public function all(array $filters = [], int $page = 1, int $perPage = 25): array
@@ -38,6 +38,13 @@ final class PrescriptionRepository extends Repository
         if (!empty($filters['patient_id'])) {
             $where[] = 'p.patient_id = :patient_id';
             $bindings['patient_id'] = $filters['patient_id'];
+        }
+
+        if (!empty($filters['search'])) {
+            $where[] = '(pt.name ILIKE :search1 OR p.code ILIKE :search2 OR m.name ILIKE :search3)';
+            $bindings['search1'] = '%' . $filters['search'] . '%';
+            $bindings['search2'] = '%' . $filters['search'] . '%';
+            $bindings['search3'] = '%' . $filters['search'] . '%';
         }
 
         if ($where !== []) {

@@ -23,8 +23,9 @@ class MedicationRepository extends Repository
         $bindings = [];
 
         if (!empty($filters['search'])) {
-            $where[] = '(name ILIKE :search OR sku ILIKE :search)';
-            $bindings['search'] = '%' . $filters['search'] . '%';
+            $where[] = '(name ILIKE :search1 OR sku ILIKE :search2)';
+            $bindings['search1'] = '%' . $filters['search'] . '%';
+            $bindings['search2'] = '%' . $filters['search'] . '%';
         }
 
         if (!empty($filters['category'])) {
@@ -44,7 +45,8 @@ class MedicationRepository extends Repository
         $sql .= ' ORDER BY name ASC LIMIT :limit OFFSET :offset';
 
         $total = (int) ($this->fetchOne(
-            'SELECT COUNT(*) AS n FROM medications',
+            'SELECT COUNT(*) AS n FROM medications'
+            . ($where !== [] ? ' WHERE ' . implode(' AND ', $where) : ''),
             $bindings
         )['n'] ?? 0);
 

@@ -22,14 +22,16 @@ final class PatientRepository extends Repository
         $bindings = [];
 
         if ($search !== null && $search !== '') {
-            $sql .= ' WHERE name ILIKE :search OR code ILIKE :search';
-            $bindings['search'] = '%' . $search . '%';
+            $sql .= ' WHERE name ILIKE :search1 OR code ILIKE :search2';
+            $bindings['search1'] = '%' . $search . '%';
+            $bindings['search2'] = '%' . $search . '%';
         }
 
         $sql .= ' ORDER BY name ASC LIMIT :limit OFFSET :offset';
 
         $total = (int) ($this->fetchOne(
-            'SELECT COUNT(*) AS n FROM patients',
+            'SELECT COUNT(*) AS n FROM patients'
+            . ($search !== null && $search !== '' ? ' WHERE name ILIKE :search1 OR code ILIKE :search2' : ''),
             $bindings
         )['n'] ?? 0);
 
@@ -43,6 +45,7 @@ final class PatientRepository extends Repository
             'last_page' => (int) ceil($total / $perPage),
         ];
     }
+
     /**
      * @return array<string, mixed>|null
      */

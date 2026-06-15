@@ -65,11 +65,10 @@ export const auth = {
     try {
       const parts = token.split(".");
 
-        
-        if (parts.length !== 3) {
-            console.log("Token não é JWT, ignorando verificação");
-            return false; 
-        }
+      if (parts.length !== 3) {
+        console.log("Token não é JWT, ignorando verificação");
+        return false;
+      }
 
       const payload = JSON.parse(atob(token.split(".")[1]));
       const now = Math.floor(Date.now() / 1000);
@@ -165,7 +164,9 @@ class ApiStatus extends EventTarget {
     const { path, options } = this._lastRequest;
     try {
       const result = await request(path, options);
-      this.dispatchEvent(new CustomEvent("retry-success", { detail: { path } }));
+      this.dispatchEvent(
+        new CustomEvent("retry-success", { detail: { path } }),
+      );
       return result;
     } catch (err) {
       if (err instanceof ApiError && err.status === 0) {
@@ -173,7 +174,9 @@ class ApiStatus extends EventTarget {
       }
       // Reached the server this time: surface the (non-network) error to
       // the caller, but the API itself is back online.
-      this.dispatchEvent(new CustomEvent("retry-success", { detail: { path } }));
+      this.dispatchEvent(
+        new CustomEvent("retry-success", { detail: { path } }),
+      );
       throw err;
     }
   }
@@ -307,6 +310,62 @@ export const api = {
   logout: () => request("/api/auth/logout", { method: "POST" }),
 
   dashboard: () => request("/api/dashboard"),
+
+  search: async (query) => {
+    if (!query || query.trim().length < 2)
+      return { medications: [], patients: [], prescriptions: [] };
+
+    const q = query.trim();
+
+    const [meds, pts, rxs] = await Promise.allSettled([
+      request("/api/medications", { query: { search: q } }),
+      request("/api/patients", { query: { search: q } }),
+      request("/api/prescriptions", { query: { search: q } }),
+    ]);
+
+    const safe = (result) => {
+      if (result.status !== "fulfilled") return [];
+      const val = result.value ?? [];
+      return Array.isArray(val) ? val : (val.data ?? []);
+    };
+
+    const rank = (label, q) => {
+      const l = (label || "").toLowerCase();
+      const s = q.toLowerCase();
+      if (l.startsWith(s)) return 0;
+      if (l.includes(s)) return 1;
+      return 2;
+    };
+
+    return {
+      medications: safe(meds)
+        .map((m) => ({
+          label: m.name,
+          sublabel: m.category ?? m.stock_status ?? null,
+          href: `medications.html?highlight=${m.id}`,
+          _rank: rank(m.name, q),
+        }))
+        .sort((a, b) => a._rank - b._rank),
+
+      patients: safe(pts)
+        .map((p) => ({
+          label: p.name,
+          sublabel: `${p.code} · ${p.plan ?? "No plan"}`,
+          href: `patients.html?highlight=${p.id}`,
+          _rank: rank(p.name, q),
+        }))
+        .sort((a, b) => a._rank - b._rank),
+
+      prescriptions: safe(rxs)
+        .map((r) => ({
+          label: r.patient?.name ?? `Rx #${r.id}`,
+          sublabel: r.medication?.name ?? null,
+          href: `prescriptions.html?highlight=${r.id}`,
+          _rank: rank(r.patient?.name ?? "", q),
+        }))
+        .sort((a, b) => a._rank - b._rank),
+    };
+  },
 
   medications: (query) => request("/api/medications", { query }),
   medication: (id) => request(`/api/medications/${id}`),
@@ -497,7 +556,12 @@ export function mountOfflineBanner() {
   button.addEventListener("click", async () => {
     button.disabled = true;
     button.textContent = "Tentando...";
-    const ok = await (apiStatus.canRetry ? apiStatus.retry().then(() => true, () => apiStatus.online) : pingApi());
+    const ok = await (apiStatus.canRetry
+      ? apiStatus.retry().then(
+          () => true,
+          () => apiStatus.online,
+        )
+      : pingApi());
     if (!ok) {
       resetButton();
     }
